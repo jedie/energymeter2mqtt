@@ -7,6 +7,7 @@ from manageprojects.utilities import code_style
 from manageprojects.utilities.publish import publish_package
 from manageprojects.utilities.subprocess_utils import verbose_check_call
 from manageprojects.utilities.version_info import print_version
+from pymodbus.client import ModbusSerialClient
 from rich import print  # noqa
 from rich_click import RichGroup
 
@@ -288,6 +289,43 @@ def version():
 
 
 cli.add_command(version)
+
+
+###########################################################################################################
+# energymeter2mqtt commands
+
+
+@click.command()
+@click.option('--port', default='/dev/ttyUSB0', show_default=True)
+def serial_test(port):
+    """
+    WIP: Test serial connection
+    """
+    print(f'Connect to {port=}...')
+    client = ModbusSerialClient(
+        port,
+        baudrate=9600,
+        bytesize=8,
+        parity='N',
+        stopbits=1,
+        timeout=1,
+    )
+    print('connected:', client.connect())
+    print(client)
+    for address in range(5):
+        print('try address:', hex(address))
+        for slave_id in range(5):
+            print(f'{slave_id=}')
+            print('read_input_registers', client.read_input_registers(address=address, count=1, slave=slave_id))
+            print('read_coils', client.read_coils(address=address, count=1, slave=slave_id))
+            print('read_device_information', client.read_device_information(address=address, count=1, slave=slave_id))
+    print(client.recv(128))
+    client.close()
+
+
+cli.add_command(serial_test)
+
+###########################################################################################################
 
 
 def main():
