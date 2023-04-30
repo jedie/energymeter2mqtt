@@ -7,3 +7,6 @@
 [![License GPL-3.0-or-later](https://img.shields.io/pypi/l/energymeter2mqtt)](https://github.com/jedie/energymeter2mqtt/blob/main/LICENSE)
 
 Get values from modbus energy meter to MQTT / HomeAssistant
+
+
+Energy Meter -> modbus -> RS485-USB-Adapter -> energymeter2mqtt -> MQTT -> Home Assistant
