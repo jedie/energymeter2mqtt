@@ -138,7 +138,7 @@ cli.add_command(systemd_setup)
 @click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
 def systemd_remove(verbosity: int):
     """
-    Write Systemd service file, enable it and (re-)start the service. (May need sudo)
+    Stops the systemd service and removed the service file. (May need sudo)
     """
     setup_logging(verbosity=verbosity)
     systemd_settings = get_systemd_settings(verbosity)
