@@ -1,0 +1,63 @@
+[connection]
+baudrate = 19200
+bytesize = 8
+parity = "N"
+stopbits = 2
+
+[[parameters]]
+register = 28
+reg_count = 2
+name = "Energy Counter Total"
+class = "energy"
+state_class = "total"
+uom = "kWh"
+scale = 0.01
+
+[[parameters]]
+register = 30
+reg_count = 2
+name = "Energy Counter Partial"
+class = "energy"
+state_class = "total"
+uom = "kWh"
+scale = 0.01
+
+[[parameters]]
+register = 35
+name = "Voltage"
+class = "voltage"
+state_class = "measurement"
+uom = "V"
+scale = 1
+
+[[parameters]]
+register = 36
+name = "Current"
+class = "current"
+state_class = "measurement"
+uom = "A"
+scale = 0.1
+
+[[parameters]]
+register = 37
+name = "Power"
+class = "power"
+state_class = "measurement"
+uom = "W"
+scale = 10
+
+[[parameters]]
+register = 38
+name = "Reactive Power"
+class = "power"
+state_class = "measurement"
+uom = "var"
+scale = 10
+
+[[parameters]]
+register = 39
+name = "Power Factor (cos phi)"
+class = "power"
+state_class = "measurement"
+uom = "var"
+scale = 0.01

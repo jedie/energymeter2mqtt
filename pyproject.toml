@@ -9,6 +9,11 @@ authors = [
 ]
 requires-python = ">=3.9,<4"
 dependencies = [
+    "ha-services>=0.3.2", # https://github.com/jedie/ha-services
+    "tomli;python_version<\"3.11\"", # https://github.com/hukkin/tomli
+    "backoff",  # https://github.com/litl/backoff
+    "paho-mqtt",  # https://pypi.org/project/paho-mqtt/
+    "pymodbus[serial]",  # https://github.com/pymodbus-dev/pymodbus/
     "bx_py_utils",  # https://github.com/boxine/bx_py_utils
     "click",  # https://github.com/pallets/click/
     "rich-click",  # https://github.com/ewels/rich-click
@@ -51,7 +56,8 @@ Documentation = "https://github.com/jedie/energymeter2mqtt"
 Source = "https://github.com/jedie/energymeter2mqtt"
 
 [project.scripts]
-energymeter2mqtt = "energymeter2mqtt.__main__:main"
+energymeter2mqtt_app = "energymeter2mqtt.__main__:main"
+energymeter2mqtt_dev = "energymeter2mqtt.cli.dev:main"
 
 [build-system]
 requires = ["setuptools>=61.0", "setuptools_scm>=7.1"]
