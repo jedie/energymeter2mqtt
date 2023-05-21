@@ -69,6 +69,7 @@ Usage: ./cli.py [OPTIONS] COMMAND [ARGS]...
 │ edit-settings    Edit the settings file. On first call: Create the default one.                  │
 │ print-registers  Print RAW modbus register data                                                  │
 │ print-values     Print all values from the definition in endless loop                            │
+│ publish-loop     Publish all values via MQTT to Home Assistant in a endless loop.                │
 │ systemd-debug    Print Systemd service template + context + rendered file content.               │
 │ systemd-remove   Write Systemd service file, enable it and (re-)start the service. (May need     │
 │                  sudo)                                                                           │

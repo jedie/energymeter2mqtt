@@ -1,6 +1,9 @@
 import dataclasses
 import sys
 
+from ha_services.toml_settings.api import TomlSettings
+from rich.pretty import pprint
+
 
 try:
     import tomllib  # New in Python 3.11
@@ -12,7 +15,7 @@ from ha_services.mqtt4homeassistant.data_classes import MqttSettings as OriginMq
 from ha_services.systemd.data_classes import BaseSystemdServiceInfo, BaseSystemdServiceTemplateContext
 from rich import print  # noqa
 
-from energymeter2mqtt.constants import PACKAGE_ROOT
+from energymeter2mqtt.constants import PACKAGE_ROOT, SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
 
 
 @dataclasses.dataclass
@@ -35,6 +38,8 @@ class EnergyMeter:
     """
 
     name: str = 'saia_pcd_ald1d5fd'
+    verbose_name: str = 'Saia PCD ALD1D5FD'
+    mqtt_payload_prefix: str = 'ald1d5fd'  # FIXME: Use serial number?!?
 
     port: str = '/dev/ttyUSB0'
     slave_id: int = 0x001  # Modbus address
@@ -42,12 +47,16 @@ class EnergyMeter:
     timeout: float = 0.5
     retry_on_empty: bool = True
 
-    def get_definitions(self) -> dict:
+    def get_definitions(self, verbosity) -> dict:
         definition_file_path = PACKAGE_ROOT / 'energymeter2mqtt' / 'definitions' / f'{self.name}.toml'
         assert_is_file(definition_file_path)
         content = definition_file_path.read_text(encoding='UTF-8')
-        data = tomllib.loads(content)
-        return data
+        definitions = tomllib.loads(content)
+
+        if verbosity > 1:
+            pprint(definitions)
+
+        return definitions
 
 
 @dataclasses.dataclass
@@ -57,7 +66,7 @@ class SystemdServiceTemplateContext(BaseSystemdServiceTemplateContext):
     """
 
     verbose_service_name: str = 'energymeter2mqtt'
-    exec_start: str = f'{sys.executable} -m inverter publish-loop'
+    exec_start: str = f'{sys.executable} -m energymeter2mqtt_app publish-loop'
 
 
 @dataclasses.dataclass
@@ -78,3 +87,28 @@ class UserSettings:
     systemd: dataclasses = dataclasses.field(default_factory=SystemdServiceInfo)
     mqtt: dataclasses = dataclasses.field(default_factory=MqttSettings)
     energy_meter: dataclasses = dataclasses.field(default_factory=EnergyMeter)
+
+
+###########################################################################################################
+
+
+def get_toml_settings() -> TomlSettings:
+    toml_settings = TomlSettings(
+        dir_name=SETTINGS_DIR_NAME,
+        file_name=SETTINGS_FILE_NAME,
+        settings_dataclass=UserSettings(),
+        not_exist_exit_code=None,  # Don't sys.exit() if settings file not present, yet.
+    )
+    return toml_settings
+
+
+def get_user_settings(verbosity) -> UserSettings:
+    toml_settings = get_toml_settings()
+    user_settings = toml_settings.get_user_settings(debug=verbosity > 1)
+    return user_settings
+
+
+def get_systemd_settings(verbosity) -> SystemdServiceInfo:
+    user_settings = get_user_settings(verbosity)
+    systemd_settings = user_settings.systemd
+    return systemd_settings

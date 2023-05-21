@@ -11,10 +11,7 @@ import rich_click as click
 from bx_py_utils.path import assert_is_file
 from ha_services.cli_tools.verbosity import OPTION_KWARGS_VERBOSE, setup_logging
 from ha_services.systemd.api import ServiceControl
-from ha_services.toml_settings.api import TomlSettings
-from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusIOException
-from pymodbus.framer.rtu_framer import ModbusRtuFramer
 from pymodbus.pdu import ExceptionResponse
 from pymodbus.register_read_message import ReadHoldingRegistersResponse
 from rich import get_console, print  # noqa
@@ -24,8 +21,9 @@ from rich_click import RichGroup
 
 import energymeter2mqtt
 from energymeter2mqtt import constants
-from energymeter2mqtt.constants import SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
-from energymeter2mqtt.user_settings import EnergyMeter, SystemdServiceInfo, UserSettings
+from energymeter2mqtt.api import get_modbus_client
+from energymeter2mqtt.mqtt_publish import publish_forever
+from energymeter2mqtt.user_settings import EnergyMeter, get_systemd_settings, get_toml_settings, get_user_settings
 
 
 logger = logging.getLogger(__name__)
@@ -69,31 +67,6 @@ def version():
 
 
 cli.add_command(version)
-
-
-###########################################################################################################
-
-
-def get_toml_settings() -> TomlSettings:
-    toml_settings = TomlSettings(
-        dir_name=SETTINGS_DIR_NAME,
-        file_name=SETTINGS_FILE_NAME,
-        settings_dataclass=UserSettings(),
-        not_exist_exit_code=None,  # Don't sys.exit() if settings file not present, yet.
-    )
-    return toml_settings
-
-
-def get_user_settings(verbosity) -> UserSettings:
-    toml_settings = get_toml_settings()
-    user_settings = toml_settings.get_user_settings(debug=verbosity > 1)
-    return user_settings
-
-
-def get_systemd_settings(verbosity) -> SystemdServiceInfo:
-    user_settings = get_user_settings(verbosity)
-    systemd_settings = user_settings.systemd
-    return systemd_settings
 
 
 ###########################################################################################################
@@ -216,34 +189,17 @@ def print_values(verbosity: int):
     """
     Print all values from the definition in endless loop
     """
+    setup_logging(verbosity=verbosity)
+
     systemd_settings = get_user_settings(verbosity)
     energy_meter: EnergyMeter = systemd_settings.energy_meter
+    definitions = energy_meter.get_definitions(verbosity)
 
-    definitions = energy_meter.get_definitions()
-    if verbosity > 1:
-        pprint(definitions)
-    conn_settings = definitions['connection']
+    client = get_modbus_client(energy_meter, definitions, verbosity)
+
     parameters = definitions['parameters']
     if verbosity > 1:
         pprint(parameters)
-
-    print(f'Connect to {energy_meter.port}...')
-    conn_kwargs = dict(
-        baudrate=conn_settings['baudrate'],
-        bytesize=conn_settings['bytesize'],
-        parity=conn_settings['parity'],
-        stopbits=conn_settings['stopbits'],
-        timeout=energy_meter.timeout,
-        retry_on_empty=energy_meter.retry_on_empty,
-    )
-    if verbosity:
-        print('Connection arguments:')
-        pprint(conn_kwargs)
-
-    client = ModbusSerialClient(energy_meter.port, framer=ModbusRtuFramer, broadcast_enable=False, **conn_kwargs)
-    if verbosity > 1:
-        print('connected:', client.connect())
-        print(client)
 
     slave_id = energy_meter.slave_id
     print(f'{slave_id=}')
@@ -279,34 +235,17 @@ def print_registers(verbosity: int):
     """
     Print RAW modbus register data
     """
+    setup_logging(verbosity=verbosity)
+
     systemd_settings = get_user_settings(verbosity)
     energy_meter: EnergyMeter = systemd_settings.energy_meter
+    definitions = energy_meter.get_definitions(verbosity)
 
-    definitions = energy_meter.get_definitions()
-    if verbosity > 1:
-        pprint(definitions)
-    conn_settings = definitions['connection']
+    client = get_modbus_client(energy_meter, definitions, verbosity)
+
     parameters = definitions['parameters']
     if verbosity > 1:
         pprint(parameters)
-
-    print(f'Connect to {energy_meter.port}...')
-    conn_kwargs = dict(
-        baudrate=conn_settings['baudrate'],
-        bytesize=conn_settings['bytesize'],
-        parity=conn_settings['parity'],
-        stopbits=conn_settings['stopbits'],
-        timeout=energy_meter.timeout,
-        retry_on_empty=energy_meter.retry_on_empty,
-    )
-    if verbosity:
-        print('Connection arguments:')
-        pprint(conn_kwargs)
-
-    client = ModbusSerialClient(energy_meter.port, framer=ModbusRtuFramer, broadcast_enable=False, **conn_kwargs)
-    if verbosity > 1:
-        print('connected:', client.connect())
-        print(client)
 
     slave_id = energy_meter.slave_id
     print(f'{slave_id=}')
@@ -330,6 +269,20 @@ def print_registers(verbosity: int):
 
 
 cli.add_command(print_registers)
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def publish_loop(verbosity: int):
+    """
+    Publish all values via MQTT to Home Assistant in a endless loop.
+    """
+    setup_logging(verbosity=verbosity)
+    publish_forever(verbosity=verbosity)
+
+
+cli.add_command(publish_loop)
+
 
 ###########################################################################################################
 
