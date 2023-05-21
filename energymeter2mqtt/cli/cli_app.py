@@ -3,6 +3,7 @@ import datetime
 import locale
 import logging
 import sys
+from decimal import Decimal
 from pathlib import Path
 
 import rich_click
@@ -211,9 +212,9 @@ cli.add_command(systemd_stop)
 
 @click.command()
 @click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
-def serial_test(verbosity: int):
+def print_values(verbosity: int):
     """
-    WIP: Test serial connection
+    Print all values from the definition in endless loop
     """
     systemd_settings = get_user_settings(verbosity)
     energy_meter: EnergyMeter = systemd_settings.energy_meter
@@ -248,91 +249,8 @@ def serial_test(verbosity: int):
     print(f'{slave_id=}')
 
     while True:
-        print('Energiezähler total:', end='')
-        response = client.read_holding_registers(
-            address=0x1C,  # == dez: 28 + 29
-            count=2,
-            slave=slave_id,
-        )
-        result = response.registers[0]
-        result = result * 0.01
-        print(f'{result} kWh')
-
-        print('Energiezähler partiell:', end='')
-        response = client.read_holding_registers(
-            address=0x1E,  # == dez: 30 + 31
-            count=2,
-            slave=slave_id,
-        )
-        result = response.registers[0]
-        result = result * 0.01
-        print(f'{result} kWh')
-
-        print('Spannung:', end='')
-        response = client.read_holding_registers(
-            address=0x23,  # == dez: 35
-            count=1,
-            slave=slave_id,
-        )
-        voltage = response.registers[0]
-        print(f'{voltage} V')
-
-        print('Strom:', end='')
-        response = client.read_holding_registers(
-            address=0x24,  # == dez: 36
-            count=1,
-            slave=slave_id,
-        )
-        result = response.registers[0]
-        current = result * 0.1
-        print(f'{current} A')
-
-        print(f'{voltage} V * {current} A = {voltage*current} W')
-
-        print(' *** Leistung: ', end='')
-        response = client.read_holding_registers(
-            address=0x25,  # == dez: 37
-            count=1,
-            slave=slave_id,
-        )
-        result = response.registers[0]
-        result = result * 10
-        print(f'{result} W')
-
-        print('Blindleistung: ', end='')
-        response = client.read_holding_registers(
-            address=0x26,  # == dez: 38
-            count=1,
-            slave=slave_id,
-        )
-        result = response.registers[0]
-        result = result * 10
-        print(f'{result} W')
-
-        print('Phase (Cos Phi):', end='')
-        response = client.read_holding_registers(
-            address=0x27,  # == dez: 39
-            count=1,
-            slave=slave_id,
-        )
-        result = response.registers[0]
-        result = result * 0.01
-        print(f'{result}')
-
-        for address in range(0x1C, 0x28):
-            print(f'Read register dez: {address:02} hex: {address:04x}  : ', end='')
-
-            response = client.read_holding_registers(address=address, count=1, slave=slave_id)
-            if isinstance(response, (ExceptionResponse, ModbusIOException)):
-                print('Error:', response)
-            else:
-                assert isinstance(response, ReadHoldingRegistersResponse), f'{response=}'
-                for value in response.registers:
-                    print(f'Result: dez:{value:05} hex:{value:08x}', end=' ')
-                print()
-
         for parameter in parameters:
-            print(parameter['name'], end=' ')
+            print(f'{parameter["name"]:>30}', end=' ')
             address = parameter['register']
             count = parameter.get('count', 1)
             if verbosity:
@@ -342,17 +260,76 @@ def serial_test(verbosity: int):
                 print('Error:', response)
             else:
                 assert isinstance(response, ReadHoldingRegistersResponse), f'{response=}'
-                if count > 1:
-                    # TODO: use all values!
-                    pass
                 value = response.registers[0]
-                scale = parameter['scale']
+                if count > 1:
+                    value += response.registers[1] * 100000
+
+                scale = Decimal(str(parameter['scale']))
                 value = value * scale
-                print(f'{value} {parameter.get("uom", "")}')
-                print()
+                print(f'{value} [blue]{parameter.get("uom", "")}')
+        print('\n')
 
 
-cli.add_command(serial_test)
+cli.add_command(print_values)
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def print_registers(verbosity: int):
+    """
+    Print RAW modbus register data
+    """
+    systemd_settings = get_user_settings(verbosity)
+    energy_meter: EnergyMeter = systemd_settings.energy_meter
+
+    definitions = energy_meter.get_definitions()
+    if verbosity > 1:
+        pprint(definitions)
+    conn_settings = definitions['connection']
+    parameters = definitions['parameters']
+    if verbosity > 1:
+        pprint(parameters)
+
+    print(f'Connect to {energy_meter.port}...')
+    conn_kwargs = dict(
+        baudrate=conn_settings['baudrate'],
+        bytesize=conn_settings['bytesize'],
+        parity=conn_settings['parity'],
+        stopbits=conn_settings['stopbits'],
+        timeout=energy_meter.timeout,
+        retry_on_empty=energy_meter.retry_on_empty,
+    )
+    if verbosity:
+        print('Connection arguments:')
+        pprint(conn_kwargs)
+
+    client = ModbusSerialClient(energy_meter.port, framer=ModbusRtuFramer, broadcast_enable=False, **conn_kwargs)
+    if verbosity > 1:
+        print('connected:', client.connect())
+        print(client)
+
+    slave_id = energy_meter.slave_id
+    print(f'{slave_id=}')
+
+    error_count = 0
+    address = 0
+    while error_count < 5:
+        print(f'[blue]Read register[/blue] dez: {address:02} hex: {address:04x} ->', end=' ')
+
+        response = client.read_holding_registers(address=address, count=1, slave=slave_id)
+        if isinstance(response, (ExceptionResponse, ModbusIOException)):
+            print('Error:', response)
+            error_count += 1
+        else:
+            assert isinstance(response, ReadHoldingRegistersResponse), f'{response=}'
+            for value in response.registers:
+                print(f'[green]Result[/green]: dez:{value:05} hex:{value:08x}', end=' ')
+            print()
+
+        address += 1
+
+
+cli.add_command(print_registers)
 
 ###########################################################################################################
 

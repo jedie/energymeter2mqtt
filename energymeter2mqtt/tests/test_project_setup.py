@@ -25,7 +25,7 @@ class ProjectSetupTestCase(TestCase):
         self.assertIn(f'energymeter2mqtt v{__version__}', output)
 
     def test_code_style(self):
-        cli_bin = PACKAGE_ROOT / 'cli.py'
+        cli_bin = PACKAGE_ROOT / 'dev-cli.py'
         assert_is_file(cli_bin)
 
         try:
