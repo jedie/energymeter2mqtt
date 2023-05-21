@@ -14,3 +14,69 @@ Energy Meter -> modbus -> RS485-USB-Adapter -> energymeter2mqtt -> MQTT -> Home 
 
 The current focus is on the energy meter "Saia PCD ALD1D5FD"
 However, the code is kept flexible, so that similar meters can be quickly put into operation.
+
+
+
+# start development
+
+```bash
+~$ git clone https://github.com/jedie/energymeter2mqtt.git
+~$ cd inverter-connect
+~/energymeter2mqtt$ ./dev-cli.py --help
+```
+
+
+# dev CLI
+
+[comment]: <> (✂✂✂ auto generated dev help start ✂✂✂)
+```
+Usage: ./dev-cli.py [OPTIONS] COMMAND [ARGS]...
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --help      Show this message and exit.                                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
+│ check-code-style            Check code style by calling darker + flake8                          │
+│ coverage                    Run and show coverage.                                               │
+│ create-default-settings     Create a default user settings file. (Used by CI pipeline ;)         │
+│ fix-code-style              Fix code style of all inverter source code files via darker          │
+│ install                     Run pip-sync and install 'inverter' via pip as editable.             │
+│ mypy                        Run Mypy (configured in pyproject.toml)                              │
+│ publish                     Build and upload this project to PyPi                                │
+│ safety                      Run safety check against current requirements files                  │
+│ test                        Run unittests                                                        │
+│ tox                         Run tox                                                              │
+│ update                      Update "requirements*.txt" dependencies files                        │
+│ update-test-snapshot-files  Update all test snapshot files (by remove and recreate all snapshot  │
+│                             files)                                                               │
+│ version                     Print version and exit                                               │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+[comment]: <> (✂✂✂ auto generated dev help end ✂✂✂)
+
+
+# app CLI
+
+[comment]: <> (✂✂✂ auto generated main help start ✂✂✂)
+```
+Usage: ./cli.py [OPTIONS] COMMAND [ARGS]...
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --help      Show this message and exit.                                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
+│ debug-settings   Display (anonymized) MQTT server username and password                          │
+│ edit-settings    Edit the settings file. On first call: Create the default one.                  │
+│ print-registers  Print RAW modbus register data                                                  │
+│ print-values     Print all values from the definition in endless loop                            │
+│ systemd-debug    Print Systemd service template + context + rendered file content.               │
+│ systemd-remove   Write Systemd service file, enable it and (re-)start the service. (May need     │
+│                  sudo)                                                                           │
+│ systemd-setup    Write Systemd service file, enable it and (re-)start the service. (May need     │
+│                  sudo)                                                                           │
+│ systemd-status   Display status of systemd service. (May need sudo)                              │
+│ systemd-stop     Stops the systemd service. (May need sudo)                                      │
+│ version          Print version and exit                                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+[comment]: <> (✂✂✂ auto generated main help end ✂✂✂)
