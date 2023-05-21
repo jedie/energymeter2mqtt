@@ -27,7 +27,7 @@ However, the code is kept flexible, so that similar meters can be quickly put in
 
 ```bash
 ~$ git clone https://github.com/jedie/energymeter2mqtt.git
-~$ cd inverter-connect
+~$ cd energymeter2mqtt
 ~/energymeter2mqtt$ ./dev-cli.py --help
 ```
 
@@ -63,7 +63,7 @@ Usage: ./cli.py [OPTIONS] COMMAND [ARGS]...
 
 ```bash
 ~$ git clone https://github.com/jedie/energymeter2mqtt.git
-~$ cd inverter-connect
+~$ cd energymeter2mqtt
 ~/energymeter2mqtt$ ./dev-cli.py --help
 ```
 
