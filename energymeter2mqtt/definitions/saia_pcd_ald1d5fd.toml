@@ -59,5 +59,5 @@ register = 39
 name = "Power Factor (cos phi)"
 class = "power"
 state_class = "measurement"
-uom = "var"
+uom = ""
 scale = 0.01
