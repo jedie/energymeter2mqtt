@@ -42,6 +42,8 @@ def get_modbus_client(energy_meter: EnergyMeter, definitions: dict, verbosity: i
 def get_ha_values(*, client, parameters, slave_id) -> list[HaValue]:
     values = []
     for parameter in parameters:
+        logger.debug('Parameters: %r', parameter)
+        parameter_name = parameter['name']
         address = parameter['register']
         count = parameter.get('count', 1)
         logger.debug('Read register %i (dez, count: %i, slave id: %i)', address, count, slave_id)
@@ -53,19 +55,25 @@ def get_ha_values(*, client, parameters, slave_id) -> list[HaValue]:
             )
         else:
             assert isinstance(response, ReadHoldingRegistersResponse), f'{response=}'
-            value = response.registers[0]
+            registers = response.registers
+            logger.debug('Register values: %r', registers)
+            value = registers[0]
             if count > 1:
-                value += response.registers[1] * 100000
+                value += registers[1] * 100000
 
-            scale = Decimal(str(parameter['scale']))
-            value = float(value * scale)
+            if scale := parameter.get('scale'):
+                logger.debug('Scale %s: %r * %r', parameter_name, value, scale)
+                scale = Decimal(str(scale))
+                value = float(value * scale)
+                logger.debug('Scaled %s results in: %r', parameter_name, value)
 
             ha_value = HaValue(
-                name=parameter['name'],
+                name=parameter_name,
                 value=value,
                 device_class=parameter['class'],
                 state_class=parameter['state_class'],
                 unit=parameter['uom'],
             )
+            logger.debug('HA-Value: %s', ha_value)
             values.append(ha_value)
     return values
