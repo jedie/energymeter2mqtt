@@ -10,3 +10,7 @@ Get values from modbus energy meter to MQTT / HomeAssistant
 
 
 Energy Meter -> modbus -> RS485-USB-Adapter -> energymeter2mqtt -> MQTT -> Home Assistant
+
+
+The current focus is on the energy meter "Saia PCD ALD1D5FD"
+However, the code is kept flexible, so that similar meters can be quickly put into operation.

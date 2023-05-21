@@ -1,22 +1,30 @@
+import atexit
+import datetime
+import locale
 import logging
 import sys
 from pathlib import Path
+
+import rich_click
 import rich_click as click
 from bx_py_utils.path import assert_is_file
-from manageprojects.utilities import code_style
-from manageprojects.utilities.publish import publish_package
-from manageprojects.utilities.subprocess_utils import verbose_check_call
-from manageprojects.utilities.version_info import print_version
+from ha_services.cli_tools.verbosity import OPTION_KWARGS_VERBOSE, setup_logging
+from ha_services.systemd.api import ServiceControl
+from ha_services.toml_settings.api import TomlSettings
 from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusIOException
 from pymodbus.framer.rtu_framer import ModbusRtuFramer
 from pymodbus.pdu import ExceptionResponse
 from pymodbus.register_read_message import ReadHoldingRegistersResponse
-from rich import print  # noqa
+from rich import get_console, print  # noqa
+from rich.pretty import pprint
+from rich.traceback import install as rich_traceback_install
 from rich_click import RichGroup
 
 import energymeter2mqtt
 from energymeter2mqtt import constants
+from energymeter2mqtt.constants import SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
+from energymeter2mqtt.user_settings import EnergyMeter, SystemdServiceInfo, UserSettings
 
 
 logger = logging.getLogger(__name__)
@@ -53,239 +61,6 @@ def cli():
 
 
 @click.command()
-@click.option('--verbose/--no-verbose', **OPTION_ARGS_DEFAULT_FALSE)
-def mypy(verbose: bool = True):
-    """Run Mypy (configured in pyproject.toml)"""
-    verbose_check_call('mypy', '.', cwd=PACKAGE_ROOT, verbose=verbose, exit_on_error=True)
-
-
-cli.add_command(mypy)
-
-
-@click.command()
-@click.option('--verbose/--no-verbose', **OPTION_ARGS_DEFAULT_FALSE)
-def coverage(verbose: bool = True):
-    """
-    Run and show coverage.
-    """
-    verbose_check_call('coverage', 'run', verbose=verbose, exit_on_error=True)
-    verbose_check_call('coverage', 'combine', '--append', verbose=verbose, exit_on_error=True)
-    verbose_check_call('coverage', 'report', '--fail-under=30', verbose=verbose, exit_on_error=True)
-    verbose_check_call('coverage', 'xml', verbose=verbose, exit_on_error=True)
-    verbose_check_call('coverage', 'json', verbose=verbose, exit_on_error=True)
-
-
-cli.add_command(coverage)
-
-
-@click.command()
-def install():
-    """
-    Run pip-sync and install 'energymeter2mqtt' via pip as editable.
-    """
-    verbose_check_call('pip-sync', PACKAGE_ROOT / 'requirements.dev.txt')
-    verbose_check_call('pip', 'install', '--no-deps', '-e', '.')
-
-
-cli.add_command(install)
-
-
-@click.command()
-def safety():
-    """
-    Run safety check against current requirements files
-    """
-    verbose_check_call('safety', 'check', '-r', 'requirements.dev.txt')
-
-
-cli.add_command(safety)
-
-
-@click.command()
-def update():
-    """
-    Update "requirements*.txt" dependencies files
-    """
-    bin_path = Path(sys.executable).parent
-
-    verbose_check_call(bin_path / 'pip', 'install', '-U', 'pip')
-    verbose_check_call(bin_path / 'pip', 'install', '-U', 'pip-tools')
-
-    extra_env = dict(
-        CUSTOM_COMPILE_COMMAND='./cli.py update',
-    )
-
-    pip_compile_base = [
-        bin_path / 'pip-compile',
-        '--verbose',
-        '--allow-unsafe',  # https://pip-tools.readthedocs.io/en/latest/#deprecations
-        '--resolver=backtracking',  # https://pip-tools.readthedocs.io/en/latest/#deprecations
-        '--upgrade',
-        '--generate-hashes',
-    ]
-
-    # Only "prod" dependencies:
-    verbose_check_call(
-        *pip_compile_base,
-        'pyproject.toml',
-        '--output-file',
-        'requirements.txt',
-        extra_env=extra_env,
-    )
-
-    # dependencies + "dev"-optional-dependencies:
-    verbose_check_call(
-        *pip_compile_base,
-        'pyproject.toml',
-        '--extra=dev',
-        '--output-file',
-        'requirements.dev.txt',
-        extra_env=extra_env,
-    )
-
-    verbose_check_call(bin_path / 'safety', 'check', '-r', 'requirements.dev.txt')
-
-    # Install new dependencies in current .venv:
-    verbose_check_call(bin_path / 'pip-sync', 'requirements.dev.txt')
-
-
-cli.add_command(update)
-
-
-@click.command()
-def publish():
-    """
-    Build and upload this project to PyPi
-    """
-    _run_unittest_cli(verbose=False, exit_after_run=False)  # Don't publish a broken state
-
-    publish_package(
-        module=energymeter2mqtt,
-        package_path=PACKAGE_ROOT,
-    )
-
-
-cli.add_command(publish)
-
-
-@click.command()
-@click.option('--color/--no-color', **OPTION_ARGS_DEFAULT_TRUE)
-@click.option('--verbose/--no-verbose', **OPTION_ARGS_DEFAULT_FALSE)
-def fix_code_style(color: bool = True, verbose: bool = False):
-    """
-    Fix code style of all energymeter2mqtt source code files via darker
-    """
-    code_style.fix(package_root=PACKAGE_ROOT, color=color, verbose=verbose)
-
-
-cli.add_command(fix_code_style)
-
-
-@click.command()
-@click.option('--color/--no-color', **OPTION_ARGS_DEFAULT_TRUE)
-@click.option('--verbose/--no-verbose', **OPTION_ARGS_DEFAULT_FALSE)
-def check_code_style(color: bool = True, verbose: bool = False):
-    """
-    Check code style by calling darker + flake8
-    """
-    code_style.check(package_root=PACKAGE_ROOT, color=color, verbose=verbose)
-
-
-cli.add_command(check_code_style)
-
-
-@click.command()
-def update_test_snapshot_files():
-    """
-    Update all test snapshot files (by remove and recreate all snapshot files)
-    """
-
-    def iter_snapshot_files():
-        yield from PACKAGE_ROOT.rglob('*.snapshot.*')
-
-    removed_file_count = 0
-    for item in iter_snapshot_files():
-        item.unlink()
-        removed_file_count += 1
-    print(f'{removed_file_count} test snapshot files removed... run tests...')
-
-    # Just recreate them by running tests:
-    _run_unittest_cli(
-        extra_env=dict(
-            RAISE_SNAPSHOT_ERRORS='0',  # Recreate snapshot files without error
-        ),
-        verbose=False,
-        exit_after_run=False,
-    )
-
-    new_files = len(list(iter_snapshot_files()))
-    print(f'{new_files} test snapshot files created, ok.\n')
-
-
-cli.add_command(update_test_snapshot_files)
-
-
-def _run_unittest_cli(extra_env=None, verbose=True, exit_after_run=True):
-    """
-    Call the origin unittest CLI and pass all args to it.
-    """
-    if extra_env is None:
-        extra_env = dict()
-
-    extra_env.update(
-        dict(
-            PYTHONUNBUFFERED='1',
-            PYTHONWARNINGS='always',
-        )
-    )
-
-    args = sys.argv[2:]
-    if not args:
-        if verbose:
-            args = ('--verbose', '--locals', '--buffer')
-        else:
-            args = ('--locals', '--buffer')
-
-    verbose_check_call(
-        sys.executable,
-        '-m',
-        'unittest',
-        *args,
-        timeout=15 * 60,
-        extra_env=extra_env,
-    )
-    if exit_after_run:
-        sys.exit(0)
-
-
-@click.command()  # Dummy command
-def test():
-    """
-    Run unittests
-    """
-    _run_unittest_cli()
-
-
-cli.add_command(test)
-
-
-def _run_tox():
-    verbose_check_call(sys.executable, '-m', 'tox', *sys.argv[2:])
-    sys.exit(0)
-
-
-@click.command()  # Dummy "tox" command
-def tox():
-    """
-    Run tox
-    """
-    _run_tox()
-
-
-cli.add_command(tox)
-
-
-@click.command()
 def version():
     """Print version and exit"""
     # Pseudo command, because the version always printed on every CLI call ;)
@@ -296,33 +71,180 @@ cli.add_command(version)
 
 
 ###########################################################################################################
+
+
+def get_toml_settings() -> TomlSettings:
+    toml_settings = TomlSettings(
+        dir_name=SETTINGS_DIR_NAME,
+        file_name=SETTINGS_FILE_NAME,
+        settings_dataclass=UserSettings(),
+        not_exist_exit_code=None,  # Don't sys.exit() if settings file not present, yet.
+    )
+    return toml_settings
+
+
+def get_user_settings(verbosity) -> UserSettings:
+    toml_settings = get_toml_settings()
+    user_settings = toml_settings.get_user_settings(debug=verbosity > 1)
+    return user_settings
+
+
+def get_systemd_settings(verbosity) -> SystemdServiceInfo:
+    user_settings = get_user_settings(verbosity)
+    systemd_settings = user_settings.systemd
+    return systemd_settings
+
+
+###########################################################################################################
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def edit_settings(verbosity: int):
+    """
+    Edit the settings file. On first call: Create the default one.
+    """
+    setup_logging(verbosity=verbosity)
+    toml_settings = get_toml_settings()
+    toml_settings.open_in_editor()
+
+
+cli.add_command(edit_settings)
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def debug_settings(verbosity: int):
+    """
+    Display (anonymized) MQTT server username and password
+    """
+    setup_logging(verbosity=verbosity)
+    toml_settings = get_toml_settings()
+    toml_settings.print_settings()
+
+
+cli.add_command(debug_settings)
+
+
+######################################################################################################
+# Manage systemd service commands:
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def systemd_debug(verbosity: int):
+    """
+    Print Systemd service template + context + rendered file content.
+    """
+    setup_logging(verbosity=verbosity)
+    systemd_settings = get_systemd_settings(verbosity)
+
+    ServiceControl(info=systemd_settings).debug_systemd_config()
+
+
+cli.add_command(systemd_debug)
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def systemd_setup(verbosity: int):
+    """
+    Write Systemd service file, enable it and (re-)start the service. (May need sudo)
+    """
+    setup_logging(verbosity=verbosity)
+    systemd_settings = get_systemd_settings(verbosity)
+
+    ServiceControl(info=systemd_settings).setup_and_restart_systemd_service()
+
+
+cli.add_command(systemd_setup)
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def systemd_remove(verbosity: int):
+    """
+    Write Systemd service file, enable it and (re-)start the service. (May need sudo)
+    """
+    setup_logging(verbosity=verbosity)
+    systemd_settings = get_systemd_settings(verbosity)
+
+    ServiceControl(info=systemd_settings).remove_systemd_service()
+
+
+cli.add_command(systemd_remove)
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def systemd_status(verbosity: int):
+    """
+    Display status of systemd service. (May need sudo)
+    """
+    setup_logging(verbosity=verbosity)
+    systemd_settings = get_systemd_settings(verbosity)
+
+    ServiceControl(info=systemd_settings).status()
+
+
+cli.add_command(systemd_status)
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def systemd_stop(verbosity: int):
+    """
+    Stops the systemd service. (May need sudo)
+    """
+    setup_logging(verbosity=verbosity)
+    systemd_settings = get_systemd_settings(verbosity)
+
+    ServiceControl(info=systemd_settings).stop()
+
+
+cli.add_command(systemd_stop)
+
+
+###########################################################################################################
 # energymeter2mqtt commands
 
 
 @click.command()
-@click.option('--port', default='/dev/ttyUSB0', show_default=True)
-def serial_test(port):
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+def serial_test(verbosity: int):
     """
     WIP: Test serial connection
     """
-    print(f'Connect to {port=}...')
+    systemd_settings = get_user_settings(verbosity)
+    energy_meter: EnergyMeter = systemd_settings.energy_meter
 
-    client = ModbusSerialClient(
-        port,
-        framer=ModbusRtuFramer,
-        baudrate=19200,
-        bytesize=8,
-        parity='N',
-        stopbits=2,
-        timeout=0.5,
-        retry_on_empty=True,
-        broadcast_enable=False,
-        debug=True,
+    definitions = energy_meter.get_definitions()
+    if verbosity > 1:
+        pprint(definitions)
+    conn_settings = definitions['connection']
+    parameters = definitions['parameters']
+    if verbosity > 1:
+        pprint(parameters)
+
+    print(f'Connect to {energy_meter.port}...')
+    conn_kwargs = dict(
+        baudrate=conn_settings['baudrate'],
+        bytesize=conn_settings['bytesize'],
+        parity=conn_settings['parity'],
+        stopbits=conn_settings['stopbits'],
+        timeout=energy_meter.timeout,
+        retry_on_empty=energy_meter.retry_on_empty,
     )
-    print('connected:', client.connect())
-    print(client)
+    if verbosity:
+        print('Connection arguments:')
+        pprint(conn_kwargs)
 
-    slave_id = 0x0001
+    client = ModbusSerialClient(energy_meter.port, framer=ModbusRtuFramer, broadcast_enable=False, **conn_kwargs)
+    if verbosity > 1:
+        print('connected:', client.connect())
+        print(client)
+
+    slave_id = energy_meter.slave_id
     print(f'{slave_id=}')
 
     while True:
@@ -409,22 +331,50 @@ def serial_test(port):
                     print(f'Result: dez:{value:05} hex:{value:08x}', end=' ')
                 print()
 
+        for parameter in parameters:
+            print(parameter['name'], end=' ')
+            address = parameter['register']
+            count = parameter.get('count', 1)
+            if verbosity:
+                print(f'(Register dez: {address:02} hex: {address:04x}, {count=})', end=' ')
+            response = client.read_holding_registers(address=address, count=count, slave=slave_id)
+            if isinstance(response, (ExceptionResponse, ModbusIOException)):
+                print('Error:', response)
+            else:
+                assert isinstance(response, ReadHoldingRegistersResponse), f'{response=}'
+                if count > 1:
+                    # TODO: use all values!
+                    pass
+                value = response.registers[0]
+                scale = parameter['scale']
+                value = value * scale
+                print(f'{value} {parameter.get("uom", "")}')
+                print()
+
 
 cli.add_command(serial_test)
 
 ###########################################################################################################
 
 
-def main():
-    print_version(energymeter2mqtt)
+def exit_func():
+    console = get_console()
+    console.rule(datetime.datetime.now().strftime('%c'))
 
-    if len(sys.argv) >= 2:
-        # Check if we just pass a command call
-        command = sys.argv[1]
-        if command == 'test':
-            _run_unittest_cli()
-        elif command == 'tox':
-            _run_tox()
+
+def main():
+    print(f'[bold][green]{energymeter2mqtt.__name__}[/green] v[cyan]{energymeter2mqtt.__version__}')
+    locale.setlocale(locale.LC_ALL, '')
+
+    console = get_console()
+    rich_traceback_install(
+        width=console.size.width,  # full terminal width
+        show_locals=True,
+        suppress=[click, rich_click],
+        max_frames=2,
+    )
+
+    atexit.register(exit_func)
 
     # Execute Click CLI:
     cli.name = './cli.py'
