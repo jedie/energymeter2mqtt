@@ -39,19 +39,22 @@ jobs:
     - name: 'Bootstrap'
       # The first CLI call will create the .venv
       run: |
+        ./dev-cli.py version
+        ./dev-cli.py create-default-settings
         ./cli.py version
 
     - name: 'CLI help'
       run: |
+        ./dev-cli.py --help
         ./cli.py --help
 
     - name: 'Safety'
       run: |
-        ./cli.py safety
+        ./dev-cli.py safety
 
     - name: 'Run tests with Python v${{ matrix.python-version }}'
       run: |
-        ./cli.py coverage
+        ./dev-cli.py coverage
 
     - name: 'Upload coverage report'
       uses: codecov/codecov-action@v3
