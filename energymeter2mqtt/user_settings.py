@@ -66,7 +66,7 @@ class SystemdServiceTemplateContext(BaseSystemdServiceTemplateContext):
     """
 
     verbose_service_name: str = 'energymeter2mqtt'
-    exec_start: str = f'{sys.executable} -m energymeter2mqtt_app publish-loop'
+    exec_start: str = f'{sys.executable} -m energymeter2mqtt publish-loop'
 
 
 @dataclasses.dataclass
