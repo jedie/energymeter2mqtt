@@ -13,6 +13,17 @@ from energymeter2mqtt.user_settings import EnergyMeter, get_user_settings
 logger = logging.getLogger(__name__)
 
 
+def wait(*, sec: int, verbosity: int):
+    if verbosity > 1:
+        print('Wait', end='...')
+    for i in range(sec, 1, -1):
+        time.sleep(1)
+        if verbosity > 1:
+            print(i, end='...')
+    if verbosity > 1:
+        print('\n', flush=True)
+
+
 def publish_forever(*, verbosity: int):
     """
     Publish all values via MQTT to Home Assistant in a endless loop.
@@ -55,8 +66,4 @@ def publish_forever(*, verbosity: int):
             # Send vial MQTT to HomeAssistant:
             publisher.publish2homeassistant(ha_mqtt_payload=ha_mqtt_payload)
 
-        print('Wait', end='...')
-        for i in range(10, 1, -1):
-            time.sleep(1)
-            print(i, end='...')
-        print()
+        wait(sec=10, verbosity=verbosity)
