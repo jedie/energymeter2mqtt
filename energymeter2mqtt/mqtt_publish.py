@@ -59,3 +59,4 @@ def publish_forever(*, verbosity: int):
         for i in range(10, 1, -1):
             time.sleep(1)
             print(i, end='...')
+        print()
