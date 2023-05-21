@@ -15,6 +15,48 @@ Energy Meter -> modbus -> RS485-USB-Adapter -> energymeter2mqtt -> MQTT -> Home 
 The current focus is on the energy meter "Saia PCD ALD1D5FD"
 However, the code is kept flexible, so that similar meters can be quickly put into operation.
 
+# Quick start
+
+## Overview:
+
+* Clone the sources
+* Create your config: `./cli.py edit-settings`
+* Test: `./cli.py print-values`
+* Setup and start MQTT publishing: `sudo ./cli.py systemd-setup`
+
+
+```bash
+~$ git clone https://github.com/jedie/energymeter2mqtt.git
+~$ cd inverter-connect
+~/energymeter2mqtt$ ./dev-cli.py --help
+```
+
+
+[comment]: <> (✂✂✂ auto generated main help start ✂✂✂)
+```
+Usage: ./cli.py [OPTIONS] COMMAND [ARGS]...
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --help      Show this message and exit.                                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
+│ debug-settings   Display (anonymized) MQTT server username and password                          │
+│ edit-settings    Edit the settings file. On first call: Create the default one.                  │
+│ print-registers  Print RAW modbus register data                                                  │
+│ print-values     Print all values from the definition in endless loop                            │
+│ publish-loop     Publish all values via MQTT to Home Assistant in a endless loop.                │
+│ systemd-debug    Print Systemd service template + context + rendered file content.               │
+│ systemd-remove   Stops the systemd service and removed the service file. (May need sudo)         │
+│ systemd-setup    Write Systemd service file, enable it and (re-)start the service. (May need     │
+│                  sudo)                                                                           │
+│ systemd-status   Display status of systemd service. (May need sudo)                              │
+│ systemd-stop     Stops the systemd service. (May need sudo)                                      │
+│ version          Print version and exit                                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+[comment]: <> (✂✂✂ auto generated main help end ✂✂✂)
+
+
 
 
 # start development
@@ -55,29 +97,5 @@ Usage: ./dev-cli.py [OPTIONS] COMMAND [ARGS]...
 [comment]: <> (✂✂✂ auto generated dev help end ✂✂✂)
 
 
-# app CLI
 
-[comment]: <> (✂✂✂ auto generated main help start ✂✂✂)
-```
-Usage: ./cli.py [OPTIONS] COMMAND [ARGS]...
 
-╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
-│ --help      Show this message and exit.                                                          │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
-│ debug-settings   Display (anonymized) MQTT server username and password                          │
-│ edit-settings    Edit the settings file. On first call: Create the default one.                  │
-│ print-registers  Print RAW modbus register data                                                  │
-│ print-values     Print all values from the definition in endless loop                            │
-│ publish-loop     Publish all values via MQTT to Home Assistant in a endless loop.                │
-│ systemd-debug    Print Systemd service template + context + rendered file content.               │
-│ systemd-remove   Write Systemd service file, enable it and (re-)start the service. (May need     │
-│                  sudo)                                                                           │
-│ systemd-setup    Write Systemd service file, enable it and (re-)start the service. (May need     │
-│                  sudo)                                                                           │
-│ systemd-status   Display status of systemd service. (May need sudo)                              │
-│ systemd-stop     Stops the systemd service. (May need sudo)                                      │
-│ version          Print version and exit                                                          │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
-```
-[comment]: <> (✂✂✂ auto generated main help end ✂✂✂)
