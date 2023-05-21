@@ -8,6 +8,10 @@ from manageprojects.utilities.publish import publish_package
 from manageprojects.utilities.subprocess_utils import verbose_check_call
 from manageprojects.utilities.version_info import print_version
 from pymodbus.client import ModbusSerialClient
+from pymodbus.exceptions import ModbusIOException
+from pymodbus.framer.rtu_framer import ModbusRtuFramer
+from pymodbus.pdu import ExceptionResponse
+from pymodbus.register_read_message import ReadHoldingRegistersResponse
 from rich import print  # noqa
 from rich_click import RichGroup
 
@@ -302,25 +306,108 @@ def serial_test(port):
     WIP: Test serial connection
     """
     print(f'Connect to {port=}...')
+
     client = ModbusSerialClient(
         port,
-        baudrate=9600,
+        framer=ModbusRtuFramer,
+        baudrate=19200,
         bytesize=8,
         parity='N',
-        stopbits=1,
-        timeout=1,
+        stopbits=2,
+        timeout=0.5,
+        retry_on_empty=True,
+        broadcast_enable=False,
+        debug=True,
     )
     print('connected:', client.connect())
     print(client)
-    for address in range(5):
-        print('try address:', hex(address))
-        for slave_id in range(5):
-            print(f'{slave_id=}')
-            print('read_input_registers', client.read_input_registers(address=address, count=1, slave=slave_id))
-            print('read_coils', client.read_coils(address=address, count=1, slave=slave_id))
-            print('read_device_information', client.read_device_information(address=address, count=1, slave=slave_id))
-    print(client.recv(128))
-    client.close()
+
+    slave_id = 0x0001
+    print(f'{slave_id=}')
+
+    while True:
+        print('Energiezähler total:', end='')
+        response = client.read_holding_registers(
+            address=0x1C,  # == dez: 28 + 29
+            count=2,
+            slave=slave_id,
+        )
+        result = response.registers[0]
+        result = result * 0.01
+        print(f'{result} kWh')
+
+        print('Energiezähler partiell:', end='')
+        response = client.read_holding_registers(
+            address=0x1E,  # == dez: 30 + 31
+            count=2,
+            slave=slave_id,
+        )
+        result = response.registers[0]
+        result = result * 0.01
+        print(f'{result} kWh')
+
+        print('Spannung:', end='')
+        response = client.read_holding_registers(
+            address=0x23,  # == dez: 35
+            count=1,
+            slave=slave_id,
+        )
+        voltage = response.registers[0]
+        print(f'{voltage} V')
+
+        print('Strom:', end='')
+        response = client.read_holding_registers(
+            address=0x24,  # == dez: 36
+            count=1,
+            slave=slave_id,
+        )
+        result = response.registers[0]
+        current = result * 0.1
+        print(f'{current} A')
+
+        print(f'{voltage} V * {current} A = {voltage*current} W')
+
+        print(' *** Leistung: ', end='')
+        response = client.read_holding_registers(
+            address=0x25,  # == dez: 37
+            count=1,
+            slave=slave_id,
+        )
+        result = response.registers[0]
+        result = result * 10
+        print(f'{result} W')
+
+        print('Blindleistung: ', end='')
+        response = client.read_holding_registers(
+            address=0x26,  # == dez: 38
+            count=1,
+            slave=slave_id,
+        )
+        result = response.registers[0]
+        result = result * 10
+        print(f'{result} W')
+
+        print('Phase (Cos Phi):', end='')
+        response = client.read_holding_registers(
+            address=0x27,  # == dez: 39
+            count=1,
+            slave=slave_id,
+        )
+        result = response.registers[0]
+        result = result * 0.01
+        print(f'{result}')
+
+        for address in range(0x1C, 0x28):
+            print(f'Read register dez: {address:02} hex: {address:04x}  : ', end='')
+
+            response = client.read_holding_registers(address=address, count=1, slave=slave_id)
+            if isinstance(response, (ExceptionResponse, ModbusIOException)):
+                print('Error:', response)
+            else:
+                assert isinstance(response, ReadHoldingRegistersResponse), f'{response=}'
+                for value in response.registers:
+                    print(f'Result: dez:{value:05} hex:{value:08x}', end=' ')
+                print()
 
 
 cli.add_command(serial_test)
