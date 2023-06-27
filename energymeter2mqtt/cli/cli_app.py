@@ -218,7 +218,7 @@ def print_values(verbosity: int):
                 assert isinstance(response, ReadHoldingRegistersResponse), f'{response=}'
                 value = response.registers[0]
                 if count > 1:
-                    value += response.registers[1] * 100000
+                    value += response.registers[1] * 65536
 
                 scale = Decimal(str(parameter['scale']))
                 value = value * scale
