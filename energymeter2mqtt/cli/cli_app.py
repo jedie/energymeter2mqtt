@@ -9,8 +9,8 @@ from pathlib import Path
 import rich_click
 import rich_click as click
 from bx_py_utils.path import assert_is_file
-from ha_services.cli_tools.verbosity import OPTION_KWARGS_VERBOSE, setup_logging
-from ha_services.systemd.api import ServiceControl
+from cli_base.cli_tools.verbosity import OPTION_KWARGS_VERBOSE, setup_logging
+from cli_base.systemd.api import ServiceControl
 from pymodbus.exceptions import ModbusIOException
 from pymodbus.pdu import ExceptionResponse
 from pymodbus.register_read_message import ReadHoldingRegistersResponse

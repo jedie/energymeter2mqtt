@@ -1,7 +1,7 @@
 import dataclasses
 import sys
 
-from ha_services.toml_settings.api import TomlSettings
+from cli_base.toml_settings.api import TomlSettings
 from rich.pretty import pprint
 
 
@@ -11,8 +11,8 @@ except ImportError:
     import tomli as tomllib  # noqa:F401
 
 from bx_py_utils.path import assert_is_file
+from cli_base.systemd.data_classes import BaseSystemdServiceInfo, BaseSystemdServiceTemplateContext
 from ha_services.mqtt4homeassistant.data_classes import MqttSettings as OriginMqttSettings
-from ha_services.systemd.data_classes import BaseSystemdServiceInfo, BaseSystemdServiceTemplateContext
 from rich import print  # noqa
 
 from energymeter2mqtt.constants import PACKAGE_ROOT, SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
