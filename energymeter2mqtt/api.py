@@ -59,7 +59,7 @@ def get_ha_values(*, client, parameters, slave_id) -> list[HaValue]:
             logger.debug('Register values: %r', registers)
             value = registers[0]
             if count > 1:
-                value += registers[1] * 100000
+                value += registers[1] * 65536
 
             if scale := parameter.get('scale'):
                 logger.debug('Scale %s: %r * %r', parameter_name, value, scale)
