@@ -3,7 +3,6 @@ import datetime
 import locale
 import logging
 import sys
-from decimal import Decimal
 from pathlib import Path
 
 import rich_click
@@ -23,6 +22,7 @@ import energymeter2mqtt
 from energymeter2mqtt import constants
 from energymeter2mqtt.api import get_modbus_client
 from energymeter2mqtt.mqtt_publish import publish_forever
+from energymeter2mqtt.probe_usb_ports import print_parameter_values, probe_one_port
 from energymeter2mqtt.user_settings import EnergyMeter, get_systemd_settings, get_toml_settings, get_user_settings
 
 
@@ -185,6 +185,34 @@ cli.add_command(systemd_stop)
 
 @click.command()
 @click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
+@click.option('--max-port', default=10, help='Maximum USB port number')
+@click.option('--port-template', default='/dev/ttyUSB{i}', help='USB device path template')
+def probe_usb_ports(verbosity: int, max_port: int, port_template: str):
+    """
+    Probe through the USB ports and print the values from definition
+    """
+    setup_logging(verbosity=verbosity)
+
+    systemd_settings = get_user_settings(verbosity)
+    energy_meter: EnergyMeter = systemd_settings.energy_meter
+    definitions = energy_meter.get_definitions(verbosity)
+
+    for port_number in range(0, max_port):
+        port = port_template.format(i=port_number)
+        print(f'Probe port: {port}...')
+
+        energy_meter.port = port
+        try:
+            probe_one_port(energy_meter, definitions, verbosity)
+        except Exception as err:
+            print(f'ERROR: {err}')
+
+
+cli.add_command(probe_usb_ports)
+
+
+@click.command()
+@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
 def print_values(verbosity: int):
     """
     Print all values from the definition in endless loop
@@ -205,25 +233,7 @@ def print_values(verbosity: int):
     print(f'{slave_id=}')
 
     while True:
-        for parameter in parameters:
-            print(f'{parameter["name"]:>30}', end=' ')
-            address = parameter['register']
-            count = parameter.get('count', 1)
-            if verbosity:
-                print(f'(Register dez: {address:02} hex: {address:04x}, {count=})', end=' ')
-            response = client.read_holding_registers(address=address, count=count, slave=slave_id)
-            if isinstance(response, (ExceptionResponse, ModbusIOException)):
-                print('Error:', response)
-            else:
-                assert isinstance(response, ReadHoldingRegistersResponse), f'{response=}'
-                value = response.registers[0]
-                if count > 1:
-                    value += response.registers[1] * 65536
-
-                scale = Decimal(str(parameter['scale']))
-                value = value * scale
-                print(f'{value} [blue]{parameter.get("uom", "")}')
-        print('\n')
+        print_parameter_values(client, parameters, slave_id, verbosity)
 
 
 cli.add_command(print_values)
