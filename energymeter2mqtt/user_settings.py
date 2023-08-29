@@ -31,10 +31,6 @@ class MqttSettings(OriginMqttSettings):
 class EnergyMeter:
     """
     The "name" is the prefix of "energymeter2mqtt/definitions/*.yaml" files!
-
-    Set "ip" of the inverter if it's always the same. (Hint: Pin it in FritzBox settings ;)
-    You can leave it empty, but then you must always pass "--ip" to CLI commands.
-    Even if it is specified here, you can always override it in the CLI with "--ip".
     """
 
     name: str = 'saia_pcd_ald1d5fd'
