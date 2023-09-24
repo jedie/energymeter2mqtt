@@ -8,9 +8,9 @@ backoff==2.2.1 \
     --hash=sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba \
     --hash=sha256:63579f9a0628e06278f7e47b7d7d5b6ce20dc65c5e96a6f3ca99a6adca0396e8
     # via energymeter2mqtt (pyproject.toml)
-bx-py-utils==87 \
-    --hash=sha256:24689ed76fd13b95a0983eeb6dd32d1c924938fb6ae627095f86b02f4cbbce91 \
-    --hash=sha256:ead2e44239e8b70ad3186d5648e45174c75ece6ff112694674d2fd5b852aaa9f
+bx-py-utils==88 \
+    --hash=sha256:32fbc7e9ff3dfb0a817c80fb1d165ec559643dab59c0be549e646acbf8223b75 \
+    --hash=sha256:3a6f4eeef6abcac834b2c1ea4c5211130fd930a064aa0baabddd7c2bd00e38ac
     # via cli-base-utilities
 cli-base-utilities==0.3.0 \
     --hash=sha256:1a59a0a61d853b4d3f4944e7494af139bccb3cca4e7766e94f452c2f131a1d59 \
@@ -78,17 +78,17 @@ pygments==2.16.1 \
     --hash=sha256:13fc09fa63bc8d8671a6d247e1eb303c4b343eaee81d861f3404db2935653692 \
     --hash=sha256:1daff0494820c69bc8941e407aa20f577374ee88364ee10a98fdbe0aece96e29
     # via rich
-pymodbus[serial]==3.4.1 \
-    --hash=sha256:2a95a311669f6734f94535332984474e4b4815de1500c74e6b94432a8bd9820a \
-    --hash=sha256:e2e810f7fc79c663b6cccda940a9ead37a8ba07f37f9207696d0eb36485107f4
+pymodbus[serial]==3.5.2 \
+    --hash=sha256:26c1aa9919b24f2247794d5d9d80f65ec06fdfd9bd6b76b81d446b55335cabf3 \
+    --hash=sha256:c861d30390d7b7cd0bca7b529392fc58fc35b63947d6ef574192b8026180f1c7
     # via energymeter2mqtt (pyproject.toml)
 pyserial==3.5 \
     --hash=sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb \
     --hash=sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0
     # via pymodbus
-rich==13.5.2 \
-    --hash=sha256:146a90b3b6b47cac4a73c12866a499e9817426423f57c5a66949c086191a8808 \
-    --hash=sha256:fb9d6c0a0f643c99eed3875b5377a184132ba9be4d61516a55273d3554d75a39
+rich==13.5.3 \
+    --hash=sha256:87b43e0543149efa1253f485cd845bb7ee54df16c9617b8a893650ab84b4acb6 \
+    --hash=sha256:9257b468badc3d347e146a4faa268ff229039d4c2d176ab0cffb4c4fbc73d5d9
     # via
     #   cli-base-utilities
     #   energymeter2mqtt (pyproject.toml)
