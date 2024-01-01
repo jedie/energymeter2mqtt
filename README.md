@@ -8,9 +8,7 @@
 
 Get values from modbus energy meter to MQTT / HomeAssistant
 
-
 Energy Meter -> modbus -> RS485-USB-Adapter -> energymeter2mqtt -> MQTT -> Home Assistant
-
 
 The current focus is on the energy meter "Saia PCD ALD1D5FD"
 However, the code is kept flexible, so that similar meters can be quickly put into operation.
@@ -23,6 +21,9 @@ However, the code is kept flexible, so that similar meters can be quickly put in
 * Create your config: `./cli.py edit-settings`
 * Test: `./cli.py print-values`
 * Setup and start MQTT publishing: `sudo ./cli.py systemd-setup`
+
+Note: It's a good idea to use the `/dev/serial/by-id/{your-device-id}` path as serial port, instead of `/dev/ttyUSB1`
+Call `udevadm info -n /dev/ttyUSB*` to get information about all USB serial devices and `ls -l /dev/serial/by-id/` to see the existing links.
 
 
 ```bash
