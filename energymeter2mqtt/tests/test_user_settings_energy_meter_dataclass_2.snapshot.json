@@ -1,0 +1,9 @@
+{
+    "mqtt_payload_prefix": "ald1d5fd",
+    "name": "saia_pcd_ald1d5fd",
+    "port": "/dev/ttyUSB0",
+    "retry_on_empty": true,
+    "slave_id": 1,
+    "timeout": 0.5,
+    "verbose_name": "Saia PCD ALD1D5FD"
+}
