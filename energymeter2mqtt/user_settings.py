@@ -15,7 +15,7 @@ from cli_base.systemd.data_classes import BaseSystemdServiceInfo, BaseSystemdSer
 from ha_services.mqtt4homeassistant.data_classes import MqttSettings as OriginMqttSettings
 from rich import print  # noqa
 
-from energymeter2mqtt.constants import PACKAGE_ROOT, SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
+from energymeter2mqtt.constants import BASE_PATH, SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
 
 
 @dataclasses.dataclass
@@ -44,7 +44,7 @@ class EnergyMeter:
     retry_on_empty: bool = True
 
     def get_definitions(self, verbosity) -> dict:
-        definition_file_path = PACKAGE_ROOT / 'energymeter2mqtt' / 'definitions' / f'{self.name}.toml'
+        definition_file_path = BASE_PATH / 'energymeter2mqtt' / 'definitions' / f'{self.name}.toml'
         assert_is_file(definition_file_path)
         content = definition_file_path.read_text(encoding='UTF-8')
         definitions = tomllib.loads(content)

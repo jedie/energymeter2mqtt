@@ -81,10 +81,10 @@ Usage: ./dev-cli.py [OPTIONS] COMMAND [ARGS]...
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
 │ check-code-style            Check code style by calling darker + flake8                          │
-│ coverage                    Run and show coverage.                                               │
+│ coverage                    Run tests and show coverage report.                                  │
 │ create-default-settings     Create a default user settings file. (Used by CI pipeline ;)         │
-│ fix-code-style              Fix code style of all inverter source code files via darker          │
-│ install                     Run pip-sync and install 'inverter' via pip as editable.             │
+│ fix-code-style              Fix code style of all cli_base source code files via darker          │
+│ install                     Run pip-sync and install 'cli_base' via pip as editable.             │
 │ mypy                        Run Mypy (configured in pyproject.toml)                              │
 │ publish                     Build and upload this project to PyPi                                │
 │ safety                      Run safety check against current requirements files                  │
