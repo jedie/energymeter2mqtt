@@ -44,7 +44,7 @@ class EnergyMeter:
     retry_on_empty: bool = True
 
     def get_definitions(self, verbosity) -> dict:
-        definition_file_path = BASE_PATH / 'energymeter2mqtt' / 'definitions' / f'{self.name}.toml'
+        definition_file_path = BASE_PATH / 'definitions' / f'{self.name}.toml'
         assert_is_file(definition_file_path)
         content = definition_file_path.read_text(encoding='UTF-8')
         definitions = tomllib.loads(content)

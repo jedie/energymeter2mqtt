@@ -1,0 +1,68 @@
+{
+    "connection": {
+        "baudrate": 19200,
+        "bytesize": 8,
+        "parity": "N",
+        "stopbits": 2
+    },
+    "parameters": [
+        {
+            "class": "energy",
+            "name": "Energy Counter Total",
+            "reg_count": 2,
+            "register": 28,
+            "scale": 0.01,
+            "state_class": "total",
+            "uom": "kWh"
+        },
+        {
+            "class": "energy",
+            "name": "Energy Counter Partial",
+            "reg_count": 2,
+            "register": 30,
+            "scale": 0.01,
+            "state_class": "total",
+            "uom": "kWh"
+        },
+        {
+            "class": "voltage",
+            "name": "Voltage",
+            "register": 35,
+            "scale": 1,
+            "state_class": "measurement",
+            "uom": "V"
+        },
+        {
+            "class": "current",
+            "name": "Current",
+            "register": 36,
+            "scale": 0.1,
+            "state_class": "measurement",
+            "uom": "A"
+        },
+        {
+            "class": "power",
+            "name": "Power",
+            "register": 37,
+            "scale": 10,
+            "state_class": "measurement",
+            "uom": "W"
+        },
+        {
+            "class": "power",
+            "name": "Reactive Power",
+            "register": 38,
+            "scale": 10,
+            "state_class": "measurement",
+            "uom": "var"
+        },
+        {
+            "class": "power",
+            "name": "Power Factor (cos phi)",
+            "register": 39,
+            "scale": 0.01,
+            "state_class": "measurement",
+            "uom": ""
+        }
+    ]
+}
