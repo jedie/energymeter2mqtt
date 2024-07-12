@@ -10,7 +10,8 @@ from cli_base.toml_settings.test_utils.cli_mock import TomlSettingsCliMock
 from manageprojects.tests.base import BaseTestCase
 
 from energymeter2mqtt import constants
-from energymeter2mqtt.constants import PACKAGE_ROOT, SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
+from energymeter2mqtt.cli_dev import PACKAGE_ROOT
+from energymeter2mqtt.constants import SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
 from energymeter2mqtt.user_settings import UserSettings
 
 
@@ -49,11 +50,7 @@ class ReadmeTestCase(BaseTestCase):
         assert_rich_click_no_color(width=TERM_WIDTH)
 
     def invoke_cli(self, *args):
-        stdout = self.cli_mock.invoke(cli_bin=PACKAGE_ROOT / 'cli.py', args=args, strip_line_prefix='Usage: ')
-
-        # Remove last line:
-        stdout = '\n'.join(stdout.splitlines()[:-1])
-        return stdout.rstrip()
+        return self.cli_mock.invoke(cli_bin=PACKAGE_ROOT / 'cli.py', args=args, strip_line_prefix='Usage: ')
 
     def invoke_dev_cli(self, *args):
         return self.cli_mock.invoke(cli_bin=PACKAGE_ROOT / 'dev-cli.py', args=args, strip_line_prefix='Usage: ')

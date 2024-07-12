@@ -9,7 +9,9 @@ authors = [
 ]
 requires-python = ">=3.9,<4"
 dependencies = [
-    "ha-services", # https://github.com/jedie/ha-services
+    # TODO: Update to the latest version:
+    "ha-services<2.0", # https://github.com/jedie/ha-services
+    #
     "backoff",  # https://github.com/litl/backoff
     "paho-mqtt",  # https://pypi.org/project/paho-mqtt/
     "pymodbus[serial]",  # https://github.com/pymodbus-dev/pymodbus/
@@ -40,6 +42,7 @@ dev = [
     "safety",  # https://github.com/pyupio/safety
     "mypy",  # https://github.com/python/mypy
     "twine",  # https://github.com/pypa/twine
+    "typeguard",  # https://github.com/agronholm/typeguard/
 
     # https://github.com/akaihola/darker
     # https://github.com/ikamensh/flynt
@@ -54,7 +57,7 @@ Source = "https://github.com/jedie/energymeter2mqtt"
 
 [project.scripts]
 energymeter2mqtt_app = "energymeter2mqtt.__main__:main"
-energymeter2mqtt_dev = "energymeter2mqtt.cli.dev:main"
+energymeter2mqtt_dev = "energymeter2mqtt.cli_dev:main"
 
 [build-system]
 requires = ["setuptools>=61.0", "setuptools_scm>=7.1"]
@@ -72,14 +75,12 @@ version = {attr = "energymeter2mqtt.__version__"}
 src = ['.']
 revision = "origin/main..."
 line_length = 119
-verbose = true
 color = true
 skip_string_normalization = true
 diff = false
 check = false
 stdout = false
 isort = true
-flynt = true
 lint = [
     "flake8",
 ]
@@ -151,6 +152,9 @@ initial_revision = "6953fcd"
 initial_date = 2023-04-25T20:08:22+02:00
 cookiecutter_template = "https://github.com/jedie/cookiecutter_templates/"
 cookiecutter_directory = "piptools-python"
+applied_migrations = [
+    "dee29ef", # 2024-07-09T16:06:43+02:00
+]
 
 [manageprojects.cookiecutter_context.cookiecutter]
 full_name = "Jens Diemer"
