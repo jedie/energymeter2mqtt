@@ -86,8 +86,8 @@ Usage: ./dev-cli.py [OPTIONS] COMMAND [ARGS]...
 │ fix-code-style              Fix code style of all cli_base source code files via darker          │
 │ install                     Run pip-sync and install 'cli_base' via pip as editable.             │
 │ mypy                        Run Mypy (configured in pyproject.toml)                              │
+│ pip-audit                   Run pip-audit check against current requirements files               │
 │ publish                     Build and upload this project to PyPi                                │
-│ safety                      Run safety check against current requirements files                  │
 │ test                        Run unittests                                                        │
 │ tox                         Run tox                                                              │
 │ update                      Update "requirements*.txt" dependencies files                        │
