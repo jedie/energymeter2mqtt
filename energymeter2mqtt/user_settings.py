@@ -41,7 +41,7 @@ class EnergyMeter:
     slave_id: int = 0x001  # Modbus address
 
     timeout: float = 0.5
-    retry_on_empty: bool = True
+    retries: int = 3
 
     def get_definitions(self, verbosity) -> dict:
         definition_file_path = BASE_PATH / 'definitions' / f'{self.name}.toml'
