@@ -25,7 +25,7 @@ def get_modbus_client(energy_meter: EnergyMeter, definitions: dict, verbosity: i
         parity=conn_settings['parity'],
         stopbits=conn_settings['stopbits'],
         timeout=energy_meter.timeout,
-        retry_on_empty=energy_meter.retry_on_empty,
+        retries=energy_meter.retries,
     )
     if verbosity:
         print('Connection arguments:')
