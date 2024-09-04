@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from ha_services.mqtt4homeassistant.data_classes import HaValue
-from pymodbus.register_read_message import ReadHoldingRegistersResponse
+from pymodbus.pdu.register_read_message import ReadHoldingRegistersResponse
 
 from energymeter2mqtt.api import get_ha_values
 

@@ -2,11 +2,11 @@ import logging
 from decimal import Decimal
 
 from ha_services.mqtt4homeassistant.data_classes import HaValue
+from pymodbus import FramerType
 from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusException
-from pymodbus.framer.rtu_framer import ModbusRtuFramer
 from pymodbus.pdu import ExceptionResponse
-from pymodbus.register_read_message import ReadHoldingRegistersResponse
+from pymodbus.pdu.register_read_message import ReadHoldingRegistersResponse
 from rich.pretty import pprint
 
 from energymeter2mqtt.user_settings import EnergyMeter
@@ -31,7 +31,7 @@ def get_modbus_client(energy_meter: EnergyMeter, definitions: dict, verbosity: i
         print('Connection arguments:')
         pprint(conn_kwargs)
 
-    client = ModbusSerialClient(energy_meter.port, framer=ModbusRtuFramer, broadcast_enable=False, **conn_kwargs)
+    client = ModbusSerialClient(energy_meter.port, framer=FramerType.RTU, **conn_kwargs)
     if verbosity > 1:
         print('connected:', client.connect())
         print(client)
