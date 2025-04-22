@@ -6,7 +6,7 @@ from pymodbus import FramerType
 from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusException
 from pymodbus.pdu import ExceptionResponse
-from pymodbus.pdu.register_read_message import ReadHoldingRegistersResponse
+from pymodbus.pdu.register_message import ReadHoldingRegistersResponse
 from rich.pretty import pprint
 
 from energymeter2mqtt.user_settings import EnergyMeter

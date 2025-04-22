@@ -1,17 +1,18 @@
 import logging
+from typing import Annotated
 
-import rich_click
-import rich_click as click
-from cli_base.cli_tools.verbosity import OPTION_KWARGS_VERBOSE, setup_logging
+import tyro
+from cli_base.cli_tools.verbosity import setup_logging
+from cli_base.tyro_commands import TyroVerbosityArgType
 from pymodbus.exceptions import ModbusIOException
 from pymodbus.pdu import ExceptionResponse
-from pymodbus.pdu.register_read_message import ReadHoldingRegistersResponse
+from pymodbus.pdu.register_message import ReadHoldingRegistersResponse
 from rich import get_console  # noqa
 from rich import print  # noqa; noqa
 from rich.pretty import pprint
 
 from energymeter2mqtt.api import get_modbus_client
-from energymeter2mqtt.cli_app import cli
+from energymeter2mqtt.cli_app import app
 from energymeter2mqtt.probe_usb_ports import print_parameter_values, probe_one_port
 from energymeter2mqtt.user_settings import EnergyMeter, get_user_settings
 
@@ -19,11 +20,26 @@ from energymeter2mqtt.user_settings import EnergyMeter, get_user_settings
 logger = logging.getLogger(__name__)
 
 
-@cli.command()
-@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
-@click.option('--max-port', default=10, help='Maximum USB port number')
-@click.option('--port-template', default='/dev/ttyUSB{i}', help='USB device path template')
-def probe_usb_ports(verbosity: int, max_port: int, port_template: str):
+TyroMaxPortArgType = Annotated[
+    int,
+    tyro.conf.arg(
+        # default=10,
+        help='Maximum USB port number',
+    ),
+]
+TyroPortTemplateArgType = Annotated[
+    str,
+    tyro.conf.arg(
+        # default='/dev/ttyUSB{i}',
+        help='USB device path template'
+    ),
+]
+
+
+@app.command
+def probe_usb_ports(
+    verbosity: TyroVerbosityArgType, max_port: TyroMaxPortArgType, port_template: TyroPortTemplateArgType
+):
     """
     Probe through the USB ports and print the values from definition
     """
@@ -44,9 +60,8 @@ def probe_usb_ports(verbosity: int, max_port: int, port_template: str):
             print(f'ERROR: {err}')
 
 
-@cli.command()
-@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
-def print_values(verbosity: int):
+@app.command
+def print_values(verbosity: TyroVerbosityArgType):
     """
     Print all values from the definition in endless loop
     """
@@ -69,9 +84,8 @@ def print_values(verbosity: int):
         print_parameter_values(client, parameters, slave_id, verbosity)
 
 
-@cli.command()
-@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
-def print_registers(verbosity: int):
+@app.command
+def print_registers(verbosity: TyroVerbosityArgType):
     """
     Print RAW modbus register data
     """

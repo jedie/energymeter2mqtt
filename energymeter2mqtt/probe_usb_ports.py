@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from pymodbus.exceptions import ModbusIOException
 from pymodbus.pdu import ExceptionResponse
-from pymodbus.pdu.register_read_message import ReadHoldingRegistersResponse
+from pymodbus.pdu.register_message import ReadHoldingRegistersResponse
 from rich import get_console, print  # noqa
 from rich.pretty import pprint
 

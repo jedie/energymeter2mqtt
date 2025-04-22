@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from ha_services.mqtt4homeassistant.data_classes import HaValue
-from pymodbus.pdu.register_read_message import ReadHoldingRegistersResponse
+from pymodbus.pdu.register_message import ReadHoldingRegistersResponse
 
 from energymeter2mqtt.api import get_ha_values
 
@@ -14,7 +14,9 @@ class ModbusClientMock:
     def read_holding_registers(self, **kwargs):
         self.calls.append(kwargs)
         values = self.mock_data[kwargs['address']]
-        return ReadHoldingRegistersResponse(values=values)
+        response = ReadHoldingRegistersResponse()
+        response.registers = values
+        return response
 
 
 class ApiTestCase(TestCase):

@@ -2,17 +2,14 @@ import logging
 import os
 import sys
 
-import rich_click
-import rich_click as click
 import tomlkit
-from cli_base.click_defaults import OPTION_ARGS_DEFAULT_FALSE
 from cli_base.toml_settings.api import TomlSettings
 from cli_base.toml_settings.serialize import dataclass2toml
 from rich import get_console  # noqa
 from rich import print  # noqa; noqa
 from tomlkit import TOMLDocument
 
-from energymeter2mqtt.cli_dev import cli
+from energymeter2mqtt.cli_dev import app
 from energymeter2mqtt.constants import SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
 from energymeter2mqtt.user_settings import UserSettings
 
@@ -20,9 +17,8 @@ from energymeter2mqtt.user_settings import UserSettings
 logger = logging.getLogger(__name__)
 
 
-@cli.command()
-@click.option('--force', **OPTION_ARGS_DEFAULT_FALSE)
-def create_default_settings(force):
+@app.command
+def create_default_settings(force: bool = False):
     """
     Create a default user settings file. (Used by CI pipeline ;)
     """

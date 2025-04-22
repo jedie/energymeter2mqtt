@@ -1,21 +1,19 @@
 import logging
 
-import rich_click
-import rich_click as click
-from cli_base.cli_tools.verbosity import OPTION_KWARGS_VERBOSE, setup_logging
+from cli_base.cli_tools.verbosity import setup_logging
+from cli_base.tyro_commands import TyroVerbosityArgType
 from rich import get_console  # noqa
 from rich import print  # noqa
 
-from energymeter2mqtt.cli_app import cli
+from energymeter2mqtt.cli_app import app
 from energymeter2mqtt.user_settings import get_toml_settings
 
 
 logger = logging.getLogger(__name__)
 
 
-@cli.command()
-@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
-def edit_settings(verbosity: int):
+@app.command
+def edit_settings(verbosity: TyroVerbosityArgType):
     """
     Edit the settings file. On first call: Create the default one.
     """
@@ -24,9 +22,8 @@ def edit_settings(verbosity: int):
     toml_settings.open_in_editor()
 
 
-@cli.command()
-@click.option('-v', '--verbosity', **OPTION_KWARGS_VERBOSE)
-def debug_settings(verbosity: int):
+@app.command
+def debug_settings(verbosity: TyroVerbosityArgType):
     """
     Display (anonymized) MQTT server username and password
     """
