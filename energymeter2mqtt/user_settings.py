@@ -1,30 +1,19 @@
 import dataclasses
+import logging
 import sys
-
-from cli_base.toml_settings.api import TomlSettings
-from rich.pretty import pprint
-
-
-try:
-    import tomllib  # New in Python 3.11
-except ImportError:
-    import tomli as tomllib  # noqa:F401
+import tomllib
+from pprint import pformat
 
 from bx_py_utils.path import assert_is_file
 from cli_base.systemd.data_classes import BaseSystemdServiceInfo, BaseSystemdServiceTemplateContext
-from ha_services.mqtt4homeassistant.data_classes import MqttSettings as OriginMqttSettings
+from cli_base.toml_settings.api import TomlSettings
+from ha_services.mqtt4homeassistant.data_classes import MqttSettings
 from rich import print  # noqa
 
 from energymeter2mqtt.constants import BASE_PATH, SETTINGS_DIR_NAME, SETTINGS_FILE_NAME
 
 
-@dataclasses.dataclass
-class MqttSettings(OriginMqttSettings):
-    """
-    MQTT server settings.
-    """
-
-    host: str = 'mqtt.your-server.tld'
+logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
@@ -34,8 +23,8 @@ class EnergyMeter:
     """
 
     name: str = 'saia_pcd_ald1d5fd'
-    verbose_name: str = 'Saia PCD ALD1D5FD'
-    mqtt_payload_prefix: str = 'ald1d5fd'  # FIXME: Use serial number?!?
+    manufacturer: str = 'Saia'
+    verbose_name: str = 'PCD ALD1D5FD'
 
     port: str = '/dev/ttyUSB0'
     slave_id: int = 0x001  # Modbus address
@@ -43,14 +32,15 @@ class EnergyMeter:
     timeout: float = 0.5
     retries: int = 3
 
-    def get_definitions(self, verbosity) -> dict:
+    def get_definitions(self) -> dict:
         definition_file_path = BASE_PATH / 'definitions' / f'{self.name}.toml'
+        logger.info('Loaded definitions from %s', definition_file_path)
+
         assert_is_file(definition_file_path)
         content = definition_file_path.read_text(encoding='UTF-8')
         definitions = tomllib.loads(content)
 
-        if verbosity > 1:
-            pprint(definitions)
+        logger.info('definitions: %s', pformat(definitions))
 
         return definitions
 
@@ -98,13 +88,7 @@ def get_toml_settings() -> TomlSettings:
     return toml_settings
 
 
-def get_user_settings(verbosity) -> UserSettings:
-    toml_settings = get_toml_settings()
-    user_settings = toml_settings.get_user_settings(debug=verbosity > 1)
+def get_user_settings(verbosity: int) -> UserSettings:
+    toml_settings: TomlSettings = get_toml_settings()
+    user_settings: UserSettings = toml_settings.get_user_settings(debug=verbosity > 0)
     return user_settings
-
-
-def get_systemd_settings(verbosity) -> SystemdServiceInfo:
-    user_settings = get_user_settings(verbosity)
-    systemd_settings = user_settings.systemd
-    return systemd_settings

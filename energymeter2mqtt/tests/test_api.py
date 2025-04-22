@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from ha_services.mqtt4homeassistant.data_classes import HaValue
+
 from pymodbus.pdu.register_message import ReadHoldingRegistersResponse
 
 from energymeter2mqtt.api import get_ha_values
@@ -33,16 +33,5 @@ class ApiTestCase(TestCase):
                 'scale': 0.01,
             }
         ]
-        values = get_ha_values(client=client, parameters=parameters, slave_id=0x001)
-        self.assertEqual(
-            values,
-            [
-                HaValue(
-                    name='Energy Counter Total',
-                    value=0.01,
-                    device_class='energy',
-                    state_class='total',
-                    unit='kWh',
-                )
-            ],
-        )
+        register2values = get_ha_values(client=client, parameters=parameters, slave_id=0x001)
+        self.assertEqual(register2values, {28: 0.01})

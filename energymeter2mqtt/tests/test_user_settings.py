@@ -9,9 +9,10 @@ from energymeter2mqtt.user_settings import EnergyMeter
 class UserSettingsTestCase(TestCase):
     def test_energy_meter_dataclass(self):
         energy_meter = EnergyMeter()
-        self.assertEqual(energy_meter.verbose_name, 'Saia PCD ALD1D5FD')
+        self.assertEqual(energy_meter.manufacturer, 'Saia')
+        self.assertEqual(energy_meter.verbose_name, 'PCD ALD1D5FD')
 
-        definitions = energy_meter.get_definitions(verbosity=0)
+        definitions = energy_meter.get_definitions()
         self.assertIsInstance(definitions, dict)
 
         # Check samples:

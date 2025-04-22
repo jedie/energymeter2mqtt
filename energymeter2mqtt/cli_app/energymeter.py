@@ -1,4 +1,5 @@
 import logging
+from pprint import pp
 from typing import Annotated
 
 import tyro
@@ -14,7 +15,7 @@ from rich.pretty import pprint
 from energymeter2mqtt.api import get_modbus_client
 from energymeter2mqtt.cli_app import app
 from energymeter2mqtt.probe_usb_ports import print_parameter_values, probe_one_port
-from energymeter2mqtt.user_settings import EnergyMeter, get_user_settings
+from energymeter2mqtt.user_settings import EnergyMeter, UserSettings, get_user_settings
 
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,12 @@ TyroPortTemplateArgType = Annotated[
 ]
 
 
+def _get_energy_meter(verbosity: int) -> EnergyMeter:
+    user_settings: UserSettings = get_user_settings(verbosity)
+    energy_meter: EnergyMeter = user_settings.energy_meter
+    return energy_meter
+
+
 @app.command
 def probe_usb_ports(
     verbosity: TyroVerbosityArgType, max_port: TyroMaxPortArgType, port_template: TyroPortTemplateArgType
@@ -45,9 +52,8 @@ def probe_usb_ports(
     """
     setup_logging(verbosity=verbosity)
 
-    systemd_settings = get_user_settings(verbosity)
-    energy_meter: EnergyMeter = systemd_settings.energy_meter
-    definitions = energy_meter.get_definitions(verbosity)
+    energy_meter: EnergyMeter = _get_energy_meter(verbosity)
+    definitions = energy_meter.get_definitions()
 
     for port_number in range(0, max_port):
         port = port_template.format(i=port_number)
@@ -61,15 +67,26 @@ def probe_usb_ports(
 
 
 @app.command
+def print_definitions(verbosity: TyroVerbosityArgType):
+    """
+    Print RAW modbus register data
+    """
+    setup_logging(verbosity=verbosity)
+
+    energy_meter: EnergyMeter = _get_energy_meter(verbosity)
+    definitions = energy_meter.get_definitions()
+    pp(definitions)
+
+
+@app.command
 def print_values(verbosity: TyroVerbosityArgType):
     """
     Print all values from the definition in endless loop
     """
     setup_logging(verbosity=verbosity)
 
-    systemd_settings = get_user_settings(verbosity)
-    energy_meter: EnergyMeter = systemd_settings.energy_meter
-    definitions = energy_meter.get_definitions(verbosity)
+    energy_meter: EnergyMeter = _get_energy_meter(verbosity)
+    definitions = energy_meter.get_definitions()
 
     client = get_modbus_client(energy_meter, definitions, verbosity)
 
@@ -91,9 +108,8 @@ def print_registers(verbosity: TyroVerbosityArgType):
     """
     setup_logging(verbosity=verbosity)
 
-    systemd_settings = get_user_settings(verbosity)
-    energy_meter: EnergyMeter = systemd_settings.energy_meter
-    definitions = energy_meter.get_definitions(verbosity)
+    energy_meter: EnergyMeter = _get_energy_meter(verbosity)
+    definitions = energy_meter.get_definitions()
 
     client = get_modbus_client(energy_meter, definitions, verbosity)
 

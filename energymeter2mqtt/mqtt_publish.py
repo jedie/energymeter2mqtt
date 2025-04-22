@@ -1,13 +1,12 @@
 import logging
 import time
 
-from ha_services.mqtt4homeassistant.converter import values2mqtt_payload
-from ha_services.mqtt4homeassistant.data_classes import HaValues
-from ha_services.mqtt4homeassistant.mqtt import HaMqttPublisher
-from rich.pretty import pprint
+from cli_base.cli_tools.verbosity import setup_logging
+from pymodbus.client import ModbusSerialClient
 
 from energymeter2mqtt.api import get_ha_values, get_modbus_client
-from energymeter2mqtt.user_settings import EnergyMeter, get_user_settings
+from energymeter2mqtt.mqtt_handler import EnergyMeterMqttHandler
+from energymeter2mqtt.user_settings import EnergyMeter, UserSettings, get_user_settings
 
 
 logger = logging.getLogger(__name__)
@@ -28,42 +27,41 @@ def publish_forever(*, verbosity: int):
     """
     Publish all values via MQTT to Home Assistant in a endless loop.
     """
-    user_settings = get_user_settings(verbosity)
+    setup_logging(verbosity=verbosity)
 
-    publisher = HaMqttPublisher(
-        settings=user_settings.mqtt,
+    user_settings: UserSettings = get_user_settings(verbosity)
+
+    energymeter_mqtt_handler = EnergyMeterMqttHandler(
+        user_settings=user_settings,
         verbosity=verbosity,
-        config_count=1,  # Send every time the config
     )
 
     energy_meter: EnergyMeter = user_settings.energy_meter
-    definitions = energy_meter.get_definitions(verbosity)
+    definitions = energy_meter.get_definitions()
 
-    client = get_modbus_client(energy_meter, definitions, verbosity)
+    client: ModbusSerialClient = get_modbus_client(energy_meter, definitions, verbosity)
 
     parameters = definitions['parameters']
-    if verbosity > 1:
-        pprint(parameters)
+    # parameters = [{'register': 28,
+    #                 'reg_count': 2,
+    #                 'name': 'Energy Counter Total',
+    #                 'class': 'energy',
+    #                 'state_class': 'total',
+    #                 'uom': 'kWh',
+    #                 'scale': 0.01},
+    #                {...
 
     slave_id = energy_meter.slave_id
-    print(f'{slave_id=}')
+    logger.info('Slave ID: %r', slave_id)
 
     while True:
         # Collect information:
         try:
-            values = get_ha_values(client=client, parameters=parameters, slave_id=slave_id)
+            register2values = get_ha_values(client=client, parameters=parameters, slave_id=slave_id)
         except Exception as err:
             logger.error('Error collection values: %s', err)
         else:
-            ha_values = HaValues(
-                device_name=energy_meter.verbose_name,
-                values=values,
-            )
-
-            # Create Payload:
-            ha_mqtt_payload = values2mqtt_payload(values=ha_values, name_prefix=energy_meter.mqtt_payload_prefix)
-
-            # Send vial MQTT to HomeAssistant:
-            publisher.publish2homeassistant(ha_mqtt_payload=ha_mqtt_payload)
+            # Publish values:
+            energymeter_mqtt_handler(register2values)
 
         wait(sec=10, verbosity=verbosity)
