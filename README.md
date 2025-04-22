@@ -36,8 +36,8 @@ Call `udevadm info -n /dev/ttyUSB*` to get information about all USB serial devi
 [comment]: <> (✂✂✂ auto generated main help start ✂✂✂)
 ```
 usage: ./cli.py [-h]
-                {debug-settings,edit-settings,print-registers,print-values,probe-usb-ports,publish-loop,systemd-debug,
-systemd-remove,systemd-setup,systemd-status,systemd-stop,version}
+                {debug-settings,edit-settings,print-definitions,print-registers,print-values,probe-usb-ports,publish-l
+oop,systemd-debug,systemd-remove,systemd-setup,systemd-status,systemd-stop,version}
 
 
 
@@ -45,12 +45,14 @@ systemd-remove,systemd-setup,systemd-status,systemd-stop,version}
 │ -h, --help        show this help message and exit                                                                  │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ subcommands ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ {debug-settings,edit-settings,print-registers,print-values,probe-usb-ports,publish-loop,systemd-debug,systemd-remo │
-│ ve,systemd-setup,systemd-status,systemd-stop,version}                                                              │
+│ {debug-settings,edit-settings,print-definitions,print-registers,print-values,probe-usb-ports,publish-loop,systemd- │
+│ debug,systemd-remove,systemd-setup,systemd-status,systemd-stop,version}                                            │
 │     debug-settings                                                                                                 │
 │                   Display (anonymized) MQTT server username and password                                           │
 │     edit-settings                                                                                                  │
 │                   Edit the settings file. On first call: Create the default one.                                   │
+│     print-definitions                                                                                              │
+│                   Print RAW modbus register data                                                                   │
 │     print-registers                                                                                                │
 │                   Print RAW modbus register data                                                                   │
 │     print-values  Print all values from the definition in endless loop                                             │
@@ -125,6 +127,8 @@ sh,test,update,update-test-snapshot-files,version}
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
+* [v0.6.0](https://github.com/jedie/energymeter2mqtt/compare/v0.5.0...v0.6.0)
+  * 2025-04-22 - Update ha-services from v0.6 to v2.10
 * [v0.5.0](https://github.com/jedie/energymeter2mqtt/compare/v0.4.0...v0.5.0)
   * 2025-04-22 - Switch pip-tools to uv
   * 2024-09-06 - Update requirements
@@ -137,13 +141,13 @@ sh,test,update,update-test-snapshot-files,version}
   * 2024-07-12 - Update requirements adn split CLI code
   * 2024-02-22 - Update requirements
   * 2024-01-01 - Update README.md
+
+<details><summary>Expand older history entries ...</summary>
+
 * [v0.2.0](https://github.com/jedie/energymeter2mqtt/compare/v0.1.2...v0.2.0)
   * 2023-08-29 - NEW command "probe-usb-ports"
   * 2023-08-29 - update requirements
   * 2023-08-29 - Remove nonsens doc string
-
-<details><summary>Expand older history entries ...</summary>
-
 * [v0.1.2](https://github.com/jedie/energymeter2mqtt/compare/v0.1.1...v0.1.2)
   * 2023-08-10 - adjust scale factor for double registers
   * 2023-06-27 - fix: adjust scale factor for double registers

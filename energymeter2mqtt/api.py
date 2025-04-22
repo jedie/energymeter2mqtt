@@ -1,7 +1,7 @@
 import logging
 from decimal import Decimal
 
-from ha_services.mqtt4homeassistant.data_classes import HaValue
+# from ha_services.mqtt4homeassistant.data_classes import HaValue
 from pymodbus import FramerType
 from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusException
@@ -39,8 +39,16 @@ def get_modbus_client(energy_meter: EnergyMeter, definitions: dict, verbosity: i
     return client
 
 
-def get_ha_values(*, client, parameters, slave_id) -> list[HaValue]:
-    values = []
+def get_ha_values(*, client: ModbusSerialClient, parameters, slave_id) -> dict:
+    # parameters = [{'register': 28,
+    #                 'reg_count': 2,
+    #                 'name': 'Energy Counter Total',
+    #                 'class': 'energy',
+    #                 'state_class': 'total',
+    #                 'uom': 'kWh',
+    #                 'scale': 0.01},
+    #                {...
+    register2values = {}
     for parameter in parameters:
         logger.debug('Parameters: %r', parameter)
         parameter_name = parameter['name']
@@ -67,13 +75,6 @@ def get_ha_values(*, client, parameters, slave_id) -> list[HaValue]:
                 value = float(value * scale)
                 logger.debug('Scaled %s results in: %r', parameter_name, value)
 
-            ha_value = HaValue(
-                name=parameter_name,
-                value=value,
-                device_class=parameter['class'],
-                state_class=parameter['state_class'],
-                unit=parameter['uom'],
-            )
-            logger.debug('HA-Value: %s', ha_value)
-            values.append(ha_value)
-    return values
+            register2values[address] = value
+            logger.debug('%s address %r has value: %r', parameter_name, address, value)
+    return register2values
