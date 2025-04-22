@@ -3,7 +3,6 @@
     through `python -m energymeter2mqtt`.
 """
 
-
 from energymeter2mqtt.cli_app import main
 
 

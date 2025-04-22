@@ -15,19 +15,19 @@ dependencies = [
     "backoff",  # https://github.com/litl/backoff
     "paho-mqtt",  # https://pypi.org/project/paho-mqtt/
     "pymodbus[serial]",  # https://github.com/pymodbus-dev/pymodbus/
-    "cli-base-utilities",  # https://github.com/jedie/cli-base-utilities
-    "click",  # https://github.com/pallets/click/
-    "rich-click",  # https://github.com/ewels/rich-click
+    "cli-base-utilities>=0.17.0",  # https://github.com/jedie/cli-base-utilities
+    "bx_py_utils",  # https://github.com/boxine/bx_py_utils
+    "tyro",  # https://github.com/brentyi/tyro
     "rich",  # https://github.com/Textualize/rich
 ]
-[project.optional-dependencies]
+
+[dependency-groups]
 dev = [
-    "cli-base-utilities",  # https://github.com/jedie/cli-base-utilities
     "manageprojects",  # https://github.com/jedie/manageprojects
-    "bx_py_utils",  # https://github.com/boxine/bx_py_utils
     "urllib3", # for bx_py_utils.test_utils.deny_requests.deny_any_real_request() in tests
-    "pip-tools",  # https://github.com/jazzband/pip-tools/
-    "tox",  # https://github.com/tox-dev/tox
+    "uv",  # https://github.com/astral-sh/uv
+    "setuptools",  # https://github.com/pypa/setuptools
+    "nox",  # https://github.com/wntrblm/nox
     "coverage",  # https://github.com/nedbat/coveragepy
     "autopep8",  # https://github.com/hhatto/autopep8
     "pyupgrade",  # https://github.com/asottile/pyupgrade
@@ -39,6 +39,7 @@ dev = [
     "pip-audit",  # https://github.com/pypa/pip-audit
     "mypy",  # https://github.com/python/mypy
     "twine",  # https://github.com/pypa/twine
+    "pre-commit",  # https://github.com/pre-commit/pre-commit
     "typeguard",  # https://github.com/agronholm/typeguard/
 
     # https://github.com/akaihola/darker
@@ -46,11 +47,6 @@ dev = [
     # https://github.com/pycqa/isort
     # https://github.com/pygments/pygments
     "darker[flynt, isort, color]",
-
-    # Work-a-round for: https://github.com/jazzband/pip-tools/issues/1866
-    # see also: https://github.com/jazzband/pip-tools/issues/994#issuecomment-1321226661
-    # backports.tarfile is needed for python <3.12
-    'backports.tarfile', # via jaraco-context -> keyring -> twine
 ]
 
 [project.urls]
@@ -80,6 +76,10 @@ require_hashes=true
 ignore-vuln=[]
 
 
+[tool.cli_base]
+version_module_name = "energymeter2mqtt"  # Used by "update-readme-history" git hook
+
+
 [tool.darker]
 src = ['.']
 revision = "origin/main..."
@@ -90,9 +90,6 @@ diff = false
 check = false
 stdout = false
 isort = true
-lint = [
-    "flake8",
-]
 log_level = "INFO"
 
 
@@ -126,24 +123,6 @@ exclude_lines = [
 ]
 
 
-[tool.tox]  # https://tox.wiki/en/latest/config.html#pyproject-toml
-legacy_tox_ini = """
-[tox]
-isolated_build = True
-envlist = py{312,311}
-skip_missing_interpreters = True
-
-[testenv]
-passenv = *
-skip_install = true
-commands_pre =
-    pip install -U pip-tools
-    pip-sync requirements.dev.txt
-commands =
-    {envpython} -m coverage run --context='{envname}'
-"""
-
-
 [tool.mypy]
 warn_unused_configs = true
 ignore_missing_imports = true
@@ -157,10 +136,11 @@ exclude = ['.venv', 'tests']
 initial_revision = "6953fcd"
 initial_date = 2023-04-25T20:08:22+02:00
 cookiecutter_template = "https://github.com/jedie/cookiecutter_templates/"
-cookiecutter_directory = "piptools-python"
+cookiecutter_directory = "uv-python"
 applied_migrations = [
     "dee29ef", # 2024-07-09T16:06:43+02:00
     "24910b0", # 2024-08-30T09:15:29+02:00
+    "b7f2cb5", # 2025-03-23T15:08:42+01:00
 ]
 
 [manageprojects.cookiecutter_context.cookiecutter]
@@ -168,7 +148,7 @@ full_name = "Jens Diemer"
 github_username = "jedie"
 author_email = "git@jensdiemer.de"
 package_name = "energymeter2mqtt"
-package_version = "0.0.1"
+package_version = "0.5.0"
 package_description = "Get values from modbus energy meter to MQTT / HomeAssistant"
 package_url = "https://github.com/jedie/energymeter2mqtt"
 issues_url = "https://github.com/jedie/energymeter2mqtt/issues"
