@@ -5,8 +5,10 @@ import sys
 import tomlkit
 from cli_base.toml_settings.api import TomlSettings
 from cli_base.toml_settings.serialize import dataclass2toml
-from rich import get_console  # noqa
-from rich import print  # noqa; noqa
+from rich import (
+    get_console,  # noqa
+    print,  # noqa; noqa
+)
 from tomlkit import TOMLDocument
 
 from energymeter2mqtt.cli_dev import app

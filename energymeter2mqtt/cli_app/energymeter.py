@@ -8,8 +8,10 @@ from cli_base.tyro_commands import TyroVerbosityArgType
 from pymodbus.exceptions import ModbusIOException
 from pymodbus.pdu import ExceptionResponse
 from pymodbus.pdu.register_message import ReadHoldingRegistersResponse
-from rich import get_console  # noqa
-from rich import print  # noqa; noqa
+from rich import (
+    get_console,  # noqa
+    print,  # noqa; noqa
+)
 from rich.pretty import pprint
 
 from energymeter2mqtt.api import get_modbus_client
