@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-
 from pymodbus.pdu.register_message import ReadHoldingRegistersResponse
 
 from energymeter2mqtt.api import get_ha_values

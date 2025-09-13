@@ -90,8 +90,8 @@ oop,systemd-debug,systemd-remove,systemd-setup,systemd-status,systemd-stop,versi
 [comment]: <> (✂✂✂ auto generated dev help start ✂✂✂)
 ```
 usage: ./dev-cli.py [-h]
-                    {check-code-style,coverage,create-default-settings,fix-code-style,install,mypy,nox,pip-audit,publi
-sh,test,update,update-test-snapshot-files,version}
+                    {coverage,create-default-settings,install,lint,mypy,nox,pip-audit,publish,test,update,update-readm
+e-history,update-test-snapshot-files,version}
 
 
 
@@ -99,22 +99,25 @@ sh,test,update,update-test-snapshot-files,version}
 │ -h, --help        show this help message and exit                                                                  │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ subcommands ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ {check-code-style,coverage,create-default-settings,fix-code-style,install,mypy,nox,pip-audit,publish,test,update,u │
-│ pdate-test-snapshot-files,version}                                                                                 │
-│     check-code-style                                                                                               │
-│                   Check code style by calling darker + flake8                                                      │
+│ {coverage,create-default-settings,install,lint,mypy,nox,pip-audit,publish,test,update,update-readme-history,update │
+│ -test-snapshot-files,version}                                                                                      │
 │     coverage      Run tests and show coverage report.                                                              │
 │     create-default-settings                                                                                        │
 │                   Create a default user settings file. (Used by CI pipeline ;)                                     │
-│     fix-code-style                                                                                                 │
-│                   Fix code style of all energymeter2mqtt source code files via darker                              │
 │     install       Install requirements and 'energymeter2mqtt' via pip as editable.                                 │
+│     lint          Check/fix code style by run: "ruff check --fix"                                                  │
 │     mypy          Run Mypy (configured in pyproject.toml)                                                          │
 │     nox           Run nox                                                                                          │
 │     pip-audit     Run pip-audit check against current requirements files                                           │
 │     publish       Build and upload this project to PyPi                                                            │
 │     test          Run unittests                                                                                    │
-│     update        Update "requirements*.txt" dependencies files                                                    │
+│     update        Update dependencies (uv.lock) and git pre-commit hooks                                           │
+│     update-readme-history                                                                                          │
+│                   Update project history base on git commits/tags in README.md Will be exited with 1 if the        │
+│                   README.md was updated otherwise with 0.                                                          │
+│                                                                                                                    │
+│                   Also, callable via e.g.:                                                                         │
+│                       python -m cli_base update-readme-history -v                                                  │
 │     update-test-snapshot-files                                                                                     │
 │                   Update all test snapshot files (by remove and recreate all snapshot files)                       │
 │     version       Print version and exit                                                                           │
@@ -127,6 +130,8 @@ sh,test,update,update-test-snapshot-files,version}
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
+* [v0.6.1](https://github.com/jedie/energymeter2mqtt/compare/v0.6.0...v0.6.1)
+  * 2025-09-13 - Apply manageprojects updates
 * [v0.6.0](https://github.com/jedie/energymeter2mqtt/compare/v0.5.0...v0.6.0)
   * 2025-04-22 - Update ha-services from v0.6 to v2.10
 * [v0.5.0](https://github.com/jedie/energymeter2mqtt/compare/v0.4.0...v0.5.0)
@@ -135,15 +140,15 @@ sh,test,update,update-test-snapshot-files,version}
 * [v0.4.0](https://github.com/jedie/energymeter2mqtt/compare/v0.3.0...v0.4.0)
   * 2024-09-04 - "retry_on_empty" -> "retries"
   * 2024-09-04 - update project via manageprojects
+
+<details><summary>Expand older history entries ...</summary>
+
 * [v0.3.0](https://github.com/jedie/energymeter2mqtt/compare/v0.2.0...v0.3.0)
   * 2024-07-12 - bugfix packaging
   * 2024-07-12 - Bugfix wrong path loading definitions
   * 2024-07-12 - Update requirements adn split CLI code
   * 2024-02-22 - Update requirements
   * 2024-01-01 - Update README.md
-
-<details><summary>Expand older history entries ...</summary>
-
 * [v0.2.0](https://github.com/jedie/energymeter2mqtt/compare/v0.1.2...v0.2.0)
   * 2023-08-29 - NEW command "probe-usb-ports"
   * 2023-08-29 - update requirements
