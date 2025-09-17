@@ -59,7 +59,7 @@ def publish_forever(*, verbosity: int):
         try:
             register2values = get_ha_values(client=client, parameters=parameters, slave_id=slave_id)
         except Exception as err:
-            logger.error('Error collection values: %s', err)
+            logger.exception('Error collect values: %s', err)
         else:
             # Publish values:
             energymeter_mqtt_handler(register2values)

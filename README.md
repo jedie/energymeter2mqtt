@@ -132,6 +132,7 @@ e-history,update-test-snapshot-files,version}
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
 * [v0.6.2](https://github.com/jedie/energymeter2mqtt/compare/v0.6.1...v0.6.2)
+  * 2025-09-17 - Log exceptions better
   * 2025-09-17 - Add "systemd-logs" to cli
   * 2025-09-17 - Update requirements
 * [v0.6.1](https://github.com/jedie/energymeter2mqtt/compare/v0.6.0...v0.6.1)
