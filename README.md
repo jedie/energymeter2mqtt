@@ -130,6 +130,8 @@ e-history,update-test-snapshot-files,version}
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
+* [**dev**](https://github.com/jedie/energymeter2mqtt/compare/v0.6.1...main)
+  * 2025-09-17 - Update requirements
 * [v0.6.1](https://github.com/jedie/energymeter2mqtt/compare/v0.6.0...v0.6.1)
   * 2025-09-13 - Apply manageprojects updates
 * [v0.6.0](https://github.com/jedie/energymeter2mqtt/compare/v0.5.0...v0.6.0)
@@ -137,12 +139,12 @@ e-history,update-test-snapshot-files,version}
 * [v0.5.0](https://github.com/jedie/energymeter2mqtt/compare/v0.4.0...v0.5.0)
   * 2025-04-22 - Switch pip-tools to uv
   * 2024-09-06 - Update requirements
-* [v0.4.0](https://github.com/jedie/energymeter2mqtt/compare/v0.3.0...v0.4.0)
-  * 2024-09-04 - "retry_on_empty" -> "retries"
-  * 2024-09-04 - update project via manageprojects
 
 <details><summary>Expand older history entries ...</summary>
 
+* [v0.4.0](https://github.com/jedie/energymeter2mqtt/compare/v0.3.0...v0.4.0)
+  * 2024-09-04 - "retry_on_empty" -> "retries"
+  * 2024-09-04 - update project via manageprojects
 * [v0.3.0](https://github.com/jedie/energymeter2mqtt/compare/v0.2.0...v0.3.0)
   * 2024-07-12 - bugfix packaging
   * 2024-07-12 - Bugfix wrong path loading definitions
