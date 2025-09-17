@@ -96,11 +96,11 @@ def print_values(verbosity: TyroVerbosityArgType):
     if verbosity > 1:
         pprint(parameters)
 
-    slave_id = energy_meter.slave_id
-    print(f'{slave_id=}')
+    device_id = energy_meter.device_id
+    print(f'{device_id=}')
 
     while True:
-        print_parameter_values(client, parameters, slave_id, verbosity)
+        print_parameter_values(client, parameters, device_id, verbosity)
 
 
 @app.command
@@ -119,15 +119,15 @@ def print_registers(verbosity: TyroVerbosityArgType):
     if verbosity > 1:
         pprint(parameters)
 
-    slave_id = energy_meter.slave_id
-    print(f'{slave_id=}')
+    device_id = energy_meter.device_id
+    print(f'{device_id=}')
 
     error_count = 0
     address = 0
     while error_count < 5:
         print(f'[blue]Read register[/blue] dez: {address:02} hex: {address:04x} ->', end=' ')
 
-        response = client.read_holding_registers(address=address, count=1, slave=slave_id)
+        response = client.read_holding_registers(address=address, count=1, device_id=device_id)
         if isinstance(response, (ExceptionResponse, ModbusIOException)):
             print('Error:', response)
             error_count += 1

@@ -39,7 +39,7 @@ def get_modbus_client(energy_meter: EnergyMeter, definitions: dict, verbosity: i
     return client
 
 
-def get_ha_values(*, client: ModbusSerialClient, parameters, slave_id) -> dict:
+def get_ha_values(*, client: ModbusSerialClient, parameters, device_id: int) -> dict:
     # parameters = [{'register': 28,
     #                 'reg_count': 2,
     #                 'name': 'Energy Counter Total',
@@ -54,12 +54,12 @@ def get_ha_values(*, client: ModbusSerialClient, parameters, slave_id) -> dict:
         parameter_name = parameter['name']
         address = parameter['register']
         count = parameter.get('count', 1)
-        logger.debug('Read register %i (dez, count: %i, slave id: %i)', address, count, slave_id)
+        logger.debug('Read register %i (dez, count: %i, slave id: %i)', address, count, device_id)
 
-        response = client.read_holding_registers(address=address, count=count, slave=slave_id)
+        response = client.read_holding_registers(address=address, count=count, device_id=device_id)
         if isinstance(response, (ExceptionResponse, ModbusException)):
             logger.error(
-                'Error read register %i (dez, count: %i, slave id: %i): %s', address, count, slave_id, response
+                'Error read register %i (dez, count: %i, slave id: %i): %s', address, count, device_id, response
             )
         else:
             assert isinstance(response, ReadHoldingRegistersResponse), f'{response=}'

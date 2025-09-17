@@ -51,13 +51,13 @@ def publish_forever(*, verbosity: int):
     #                 'scale': 0.01},
     #                {...
 
-    slave_id = energy_meter.slave_id
-    logger.info('Slave ID: %r', slave_id)
+    device_id = energy_meter.device_id
+    logger.info('Slave ID: %r', device_id)
 
     while True:
         # Collect information:
         try:
-            register2values = get_ha_values(client=client, parameters=parameters, slave_id=slave_id)
+            register2values = get_ha_values(client=client, parameters=parameters, device_id=device_id)
         except Exception as err:
             logger.exception('Error collect values: %s', err)
         else:

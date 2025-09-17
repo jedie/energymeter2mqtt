@@ -13,14 +13,14 @@ from energymeter2mqtt.api import get_modbus_client
 logger = logging.getLogger(__name__)
 
 
-def print_parameter_values(client, parameters, slave_id, verbosity):
+def print_parameter_values(client, parameters, device_id: int, verbosity):
     for parameter in parameters:
         print(f'{parameter["name"]:>30}', end=' ')
         address = parameter['register']
         count = parameter.get('count', 1)
         if verbosity:
             print(f'(Register dez: {address:02} hex: {address:04x}, {count=})', end=' ')
-        response = client.read_holding_registers(address=address, count=count, slave=slave_id)
+        response = client.read_holding_registers(address=address, count=count, device_id=device_id)
         if isinstance(response, (ExceptionResponse, ModbusIOException)):
             print('Error:', response)
         else:
@@ -42,7 +42,7 @@ def probe_one_port(energy_meter, definitions, verbosity):
     if verbosity > 1:
         pprint(parameters)
 
-    slave_id = energy_meter.slave_id
-    print(f'{slave_id=}')
+    device_id = energy_meter.device_id
+    print(f'{device_id=}')
 
-    print_parameter_values(client, parameters, slave_id, verbosity)
+    print_parameter_values(client, parameters, device_id, verbosity)

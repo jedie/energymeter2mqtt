@@ -32,5 +32,5 @@ class ApiTestCase(TestCase):
                 'scale': 0.01,
             }
         ]
-        register2values = get_ha_values(client=client, parameters=parameters, slave_id=0x001)
+        register2values = get_ha_values(client=client, parameters=parameters, device_id=0x001)
         self.assertEqual(register2values, {28: 0.01})
