@@ -127,11 +127,19 @@ e-history,update-test-snapshot-files,version}
 [comment]: <> (✂✂✂ auto generated dev help end ✂✂✂)
 
 
+## Backwards-incompatible changes
+
+### v0.6.2
+
+Config value `slave_id` was renamed to `device_id`, like in pymodbus v3.10.0
+
+
 ## History
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
 * [v0.6.2](https://github.com/jedie/energymeter2mqtt/compare/v0.6.1...v0.6.2)
+  * 2025-09-17 - Rename "slave_id" to "device_id" (Also in the config file!)
   * 2025-09-17 - Log exceptions better
   * 2025-09-17 - Add "systemd-logs" to cli
   * 2025-09-17 - Update requirements

@@ -3,7 +3,7 @@
     "name": "saia_pcd_ald1d5fd",
     "port": "/dev/ttyUSB0",
     "retries": 3,
-    "slave_id": 1,
+    "device_id": 1,
     "timeout": 0.5,
     "verbose_name": "PCD ALD1D5FD"
 }

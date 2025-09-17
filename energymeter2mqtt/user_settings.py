@@ -27,7 +27,7 @@ class EnergyMeter:
     verbose_name: str = 'PCD ALD1D5FD'
 
     port: str = '/dev/ttyUSB0'
-    slave_id: int = 0x001  # Modbus address
+    device_id: int = 0x001  # Modbus address (Was "slave_id" in the past)
 
     timeout: float = 0.5
     retries: int = 3
