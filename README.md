@@ -37,7 +37,7 @@ Call `udevadm info -n /dev/ttyUSB*` to get information about all USB serial devi
 ```
 usage: ./cli.py [-h]
                 {debug-settings,edit-settings,print-definitions,print-registers,print-values,probe-usb-ports,publish-l
-oop,systemd-debug,systemd-remove,systemd-setup,systemd-status,systemd-stop,version}
+oop,systemd-debug,systemd-logs,systemd-remove,systemd-setup,systemd-status,systemd-stop,version}
 
 
 
@@ -46,7 +46,7 @@ oop,systemd-debug,systemd-remove,systemd-setup,systemd-status,systemd-stop,versi
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ subcommands ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ {debug-settings,edit-settings,print-definitions,print-registers,print-values,probe-usb-ports,publish-loop,systemd- │
-│ debug,systemd-remove,systemd-setup,systemd-status,systemd-stop,version}                                            │
+│ debug,systemd-logs,systemd-remove,systemd-setup,systemd-status,systemd-stop,version}                               │
 │     debug-settings                                                                                                 │
 │                   Display (anonymized) MQTT server username and password                                           │
 │     edit-settings                                                                                                  │
@@ -61,6 +61,7 @@ oop,systemd-debug,systemd-remove,systemd-setup,systemd-status,systemd-stop,versi
 │     publish-loop  Publish all values via MQTT to Home Assistant in a endless loop.                                 │
 │     systemd-debug                                                                                                  │
 │                   Print Systemd service template + context + rendered file content.                                │
+│     systemd-logs  Show systemd service logs. (May need sudo)                                                       │
 │     systemd-remove                                                                                                 │
 │                   Stops the systemd service and removed the service file. (May need sudo)                          │
 │     systemd-setup                                                                                                  │
@@ -130,7 +131,8 @@ e-history,update-test-snapshot-files,version}
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
-* [**dev**](https://github.com/jedie/energymeter2mqtt/compare/v0.6.1...main)
+* [v0.6.2](https://github.com/jedie/energymeter2mqtt/compare/v0.6.1...v0.6.2)
+  * 2025-09-17 - Add "systemd-logs" to cli
   * 2025-09-17 - Update requirements
 * [v0.6.1](https://github.com/jedie/energymeter2mqtt/compare/v0.6.0...v0.6.1)
   * 2025-09-13 - Apply manageprojects updates
