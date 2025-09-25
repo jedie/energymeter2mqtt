@@ -138,7 +138,8 @@ Config value `slave_id` was renamed to `device_id`, like in pymodbus v3.10.0
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
-* [v0.6.2](https://github.com/jedie/energymeter2mqtt/compare/v0.6.1...v0.6.2)
+* [v0.6.3](https://github.com/jedie/energymeter2mqtt/compare/v0.6.1...v0.6.3)
+  * 2025-09-25 - Fix unsupported sensor combination
   * 2025-09-17 - Rename "slave_id" to "device_id" (Also in the config file!)
   * 2025-09-17 - Log exceptions better
   * 2025-09-17 - Add "systemd-logs" to cli

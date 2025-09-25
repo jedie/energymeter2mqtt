@@ -16,6 +16,20 @@ from energymeter2mqtt.constants import BASE_PATH, SETTINGS_DIR_NAME, SETTINGS_FI
 logger = logging.getLogger(__name__)
 
 
+DEFINITION_FILES_PATH = BASE_PATH / 'definitions'
+
+
+def parse_definition(name: str) -> dict:
+    definition_file_path = DEFINITION_FILES_PATH / f'{name}.toml'
+    logger.info('Loaded definitions from %s', definition_file_path)
+
+    assert_is_file(definition_file_path)
+    content = definition_file_path.read_text(encoding='UTF-8')
+    definitions = tomllib.loads(content)
+    logger.info('definitions: %s', pformat(definitions))
+    return definitions
+
+
 @dataclasses.dataclass
 class EnergyMeter:
     """
@@ -33,15 +47,7 @@ class EnergyMeter:
     retries: int = 3
 
     def get_definitions(self) -> dict:
-        definition_file_path = BASE_PATH / 'definitions' / f'{self.name}.toml'
-        logger.info('Loaded definitions from %s', definition_file_path)
-
-        assert_is_file(definition_file_path)
-        content = definition_file_path.read_text(encoding='UTF-8')
-        definitions = tomllib.loads(content)
-
-        logger.info('definitions: %s', pformat(definitions))
-
+        definitions = parse_definition(self.name)
         return definitions
 
 
