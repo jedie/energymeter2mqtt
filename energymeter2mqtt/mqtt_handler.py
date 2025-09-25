@@ -58,7 +58,7 @@ class EnergyMeterMqttHandler:
                 device=self.mqtt_device,
                 name=parameter['name'],
                 uid=slugify(parameter['name'].lower(), sep='_'),
-                device_class=parameter['class'],
+                device_class=parameter.get('class'),
                 state_class=parameter['state_class'],
                 unit_of_measurement=parameter['uom'],
                 suggested_display_precision=parameter.get('suggested_display_precision'),
